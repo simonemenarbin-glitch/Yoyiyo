@@ -1,0 +1,6 @@
+# Google Drive MCP OAuth material must stay local to each developer/agent.
+.gdrive-server-credentials.json
+gcp-oauth.keys.json
+credentials.json
+tokens.json
+.google-drive-mcp/

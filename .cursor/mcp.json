@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "google-drive": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@piotr-agier/google-drive-mcp"]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "yoyiyo-tiktok-mini-app",
+  "version": "1.0.0",
+  "description": "Minimal TikTok Content Posting API app for OAuth and video publishing.",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "node --check src/server.js && node --check src/config.js && node --check src/tiktokApi.js && node --check src/tokenStore.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonemenarbin-glitch/Yoyiyo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/simonemenarbin-glitch/Yoyiyo/issues"
+  },
+  "homepage": "https://github.com/simonemenarbin-glitch/Yoyiyo#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0"
+  }
+}

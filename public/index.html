@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Yoyiyo TikTok Mini App</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Yoyiyo</p>
+        <h1>TikTok Mini App</h1>
+        <p>
+          Collega un account TikTok via OAuth e pubblica un video usando la
+          Content Posting API ufficiale.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Stato</h2>
+        <pre id="status">Caricamento...</pre>
+        <div class="actions">
+          <a class="button" href="/auth/tiktok">Collega TikTok</a>
+          <button id="logoutButton" type="button">Scollega</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Account e permessi</h2>
+        <div class="actions">
+          <button id="accountButton" type="button">Leggi account</button>
+          <button id="creatorInfoButton" type="button">
+            Leggi creator info
+          </button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Pubblica video da URL</h2>
+        <p class="hint">
+          L'URL deve essere pubblico, HTTPS, e il dominio deve rispettare le
+          regole TikTok per <code>PULL_FROM_URL</code>.
+        </p>
+        <form id="publishForm">
+          <label>
+            URL video HTTPS
+            <input
+              name="videoUrl"
+              type="url"
+              placeholder="https://example.com/video.mp4"
+              required
+            />
+          </label>
+          <label>
+            Caption / titolo
+            <textarea
+              name="title"
+              maxlength="2200"
+              placeholder="Caption con hashtag"
+              required
+            ></textarea>
+          </label>
+          <label>
+            Privacy
+            <select name="privacyLevel">
+              <option value="SELF_ONLY">SELF_ONLY</option>
+              <option value="MUTUAL_FOLLOW_FRIENDS">
+                MUTUAL_FOLLOW_FRIENDS
+              </option>
+              <option value="FOLLOWER_OF_CREATOR">FOLLOWER_OF_CREATOR</option>
+              <option value="PUBLIC_TO_EVERYONE">PUBLIC_TO_EVERYONE</option>
+            </select>
+          </label>
+          <div class="checks">
+            <label>
+              <input name="disableDuet" type="checkbox" />
+              Disabilita duet
+            </label>
+            <label>
+              <input name="disableComment" type="checkbox" />
+              Disabilita commenti
+            </label>
+            <label>
+              <input name="disableStitch" type="checkbox" />
+              Disabilita stitch
+            </label>
+          </div>
+          <button type="submit">Invia a TikTok</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Risposta API</h2>
+        <pre id="output">Nessuna chiamata ancora.</pre>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

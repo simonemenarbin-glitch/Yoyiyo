@@ -1,0 +1,15 @@
+Oggetto: Re: Proposta di collaborazione — {azienda_mittente} × {nome_agenzia}
+
+Buongiorno{saluto_contatto},
+
+riprendo solo brevemente la mail di qualche giorno fa, senza alcun impegno.
+
+Se la collaborazione può avere senso per {nome_agenzia}, resto volentieri a disposizione per due righe di dettaglio.
+In caso contrario, nessuna necessità di rispondere: non insisterò oltre.
+
+Se preferite non essere ricontattati, rispondete “STOP”.
+
+Cordiali saluti,
+{nome_mittente}
+{azienda_mittente}
+{email_mittente}

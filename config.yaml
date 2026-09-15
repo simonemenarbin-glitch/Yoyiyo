@@ -1,0 +1,38 @@
+# Configurazione outreach B2B soft — modifica questi valori
+# Nessuno scraping, nessun invio automatico di massa.
+
+mittente:
+  nome: "Il tuo nome"
+  ruolo: "Fondatore"
+  azienda: "Yoyiyo"
+  email: "tuo@email.it"
+  telefono: ""
+  sito: "https://yoyiyo.example"
+
+offerta:
+  # Una frase chiara su cosa proponi e perché conviene all'agenzia
+  descrizione: "Collaborazione B2B per proporre esperienze/viaggi ai vostri clienti, con commissione e materiale pronto all'uso."
+  valore_per_loro: "Nuova proposta da vendere senza carico operativo, con supporto commerciale dedicato."
+  call_to_action: "Se può interessarvi, rispondete pure a questa email e vi mando due righe operative."
+
+target:
+  zona: "Emilia-Romagna"
+  tipi_consentiti:
+    - "agenzia_retail"
+    - "tour_operator"
+    - "dmc"
+    - "incoming"
+
+limiti:
+  # Soft cap giornaliero: bozze/preparazione, non blast automatico
+  max_email_giorno: 100
+  max_followup: 1
+  giorni_prima_followup: 7
+
+tono:
+  stile: "soft_professionale"
+  vietato:
+    - "urgenze false"
+    - "sconti lampo"
+    - "linguaggio aggressivo"
+    - "invii ripetuti senza consenso"

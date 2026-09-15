@@ -1,0 +1,21 @@
+Oggetto: Proposta di collaborazione — {azienda_mittente} × {nome_agenzia}
+
+Buongiorno{saluto_contatto},
+
+mi chiamo {nome_mittente} e scrivo da {azienda_mittente}.
+
+Ho visto che {nome_agenzia} opera{zona_frase}{tipo_frase}, e vi contatto in modo diretto e senza insistenza per una possibile collaborazione B2B.
+
+In sintesi: {offerta_descrizione}
+
+Per voi potrebbe significare: {valore_per_loro}
+
+{call_to_action}
+
+Se preferite non ricevere altre comunicazioni, rispondete pure con “STOP” oppure usate: {opt_out_hint}
+Non riceverete altri messaggi.
+
+Cordiali saluti,
+{nome_mittente}
+{ruolo_mittente}, {azienda_mittente}
+{email_mittente}{blocco_contatti}

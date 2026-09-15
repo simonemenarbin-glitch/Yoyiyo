@@ -1,2 +1,2 @@
 id,nome,tipo,zona,email,contatto,sito,fonte,stato,qualifica_ok,data_primo_contatto,data_ultimo_invio,n_invii,data_followup,risposta,opt_out,note
-esempio-1,Agenzia Demo Travel,agenzia_retail,Sicilia orientale,info@demo-travel.example,Maria Rossi,https://demo-travel.example,sito-ufficiale,da_verificare,no,,,,,no,no,Esempio: sostituisci con agenzie verificate a mano
+esempio-1,Agenzia Demo Travel,agenzia_retail,Emilia-Romagna,info@demo-travel.example,Maria Rossi,https://demo-travel.example,sito-ufficiale,da_verificare,no,,,,,no,no,Esempio: sostituisci con agenzie verificate a mano

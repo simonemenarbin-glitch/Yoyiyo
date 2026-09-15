@@ -16,7 +16,7 @@ offerta:
   call_to_action: "Se può interessarvi, rispondete pure a questa email e vi mando due righe operative."
 
 target:
-  zona: "Da impostare (es. Sicilia orientale)"
+  zona: "Emilia-Romagna"
   tipi_consentiti:
     - "agenzia_retail"
     - "tour_operator"

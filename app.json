@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Yoyiyo",
+    "slug": "yoyiyo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "yoyiyo",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B3D4A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.yoyiyo.travel",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "app.yoyiyo.travel",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0B3D4A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

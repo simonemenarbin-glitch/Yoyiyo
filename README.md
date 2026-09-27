@@ -12,6 +12,8 @@ Fase uno: agenzie. Il cliente finale, più avanti, può entrare solo su una sogl
 python3 -m motore
 ```
 
-Poi compila `verifica/ciclo-001.md` e rilancia lo stesso comando. Il motore rigenera `dossier/ciclo-001.md` e, se hai scritto almeno una risposta, `dossier/ciclo-002.md`. Non sovrascrive le tue risposte.
+Poi compila `verifica/ciclo-001.md` e rilancia lo stesso comando. Il motore rigenera `dossier/ciclo-001.md`, `dossier/lettura-partner.md` e, se hai scritto almeno una risposta, `dossier/ciclo-002.md`. Non sovrascrive le tue risposte.
+
+`lettura-partner.md` sono le domande che ti faresti tu, risposte sulle pagine pubbliche (Yoyiyo Partner, i tour pronti, il desk). Non sono la tua firma.
 
 Finché le risposte obbligatorie non tengono l'idea in vita, non c'è una piattaforma da costruire. C'è un foglio e una telefonata.

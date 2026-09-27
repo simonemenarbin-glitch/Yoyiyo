@@ -8,6 +8,8 @@ Ricerca dei vicini: 27 settembre 2026. Il motore non certifica che un'idea sia a
 Apri `verifica/ciclo-001.md`, compila le risposte che sai già, e rilancia `python3 -m motore`.
 Finché V1, V2, V3, V4, V6 e V9 non tengono l'idea in vita, non si costruisce una piattaforma.
 
+Le domande che ti faresti tu, risposte sulle pagine pubbliche, stanno in `dossier/lettura-partner.md`. Quella lettura non compila la verifica: la firma resta tua.
+
 ## L'idea
 
 **Soglia.** Più agenzie depositano un frammento: quanti passeggeri hanno già, in quale settimana, sotto quale tetto di costo. Il motore somma solo i frammenti compatibili. Il verificatore firma il preventivo del fornitore. Se dopo la firma la somma resta sopra il minimo, la partenza nasce. Prima di quella firma la partenza non c'è, e il fornitore non viene pagato.
@@ -73,7 +75,7 @@ SoloPoolD fa pool anonimi di singoli per tariffe hotel, e conferma la prenotazio
 
 Esito: Aperto, dipende dal corridoio.
 
-archètravel e Aretina vendono già partenze garantite con due partecipanti. Dove il fornitore accetta quel minimo, Soglia non aggiunge nulla. Soglia ha senso dove il minimo resta alto: guida, mezzo, allotment, regole del gruppo. Lo decidi tu con V9.
+archètravel e Aretina vendono già partenze garantite con due partecipanti. In casa il calendario è più preciso: su cinaingruppo.it la Base 2 parte in due solo sulle date teal, con una quota diversa dalla Base 4. La Base 4 chiede quattro persone quasi ogni giorno e una conferma almeno 45 giorni prima. Il groupage su yoyiyo.biz è un su misura condiviso, minimo 4, costruito su un nucleo di amici o famiglia. Soglia, sul tour pronto, resta solo dove la data non è teal e il cliente non si sposta. Lo decidi tu con V1 e V9.
 
 ### 4. Le agenzie concorrenti accetteranno di mostrare i clienti?
 

@@ -5,10 +5,12 @@ from __future__ import annotations
 from motore.conoscenza import (
     DATA_RICERCA,
     DOMANDE,
+    DOMANDE_SUE,
     ESEMPIO,
     GIRI,
     IDEA,
     MORTE,
+    PAGINE,
     PASSI,
     VICINI,
 )
@@ -101,6 +103,8 @@ Ricerca dei vicini: {DATA_RICERCA}. Il motore non certifica che un'idea sia asse
 Apri `verifica/ciclo-001.md`, compila le risposte che sai già, e rilancia `python3 -m motore`.
 Finché V1, V2, V3, V4, V6 e V9 non tengono l'idea in vita, non si costruisce una piattaforma.
 
+Le domande che ti faresti tu, risposte sulle pagine pubbliche, stanno in `dossier/lettura-partner.md`. Quella lettura non compila la verifica: la firma resta tua.
+
 ## L'idea
 
 **{IDEA['nome']}.** {IDEA['frase']}
@@ -150,6 +154,35 @@ Il B2C non è un secondo prodotto. È la stessa soglia, a posti residui, dopo la
 ## Domande aperte
 
 {domande}
+"""
+
+
+def lettura_partner() -> str:
+    pagine = "\n".join(f"- **{p['nome']}.** {p['fatto']} {p['url']}" for p in PAGINE)
+    domande = "\n\n".join(
+        f"### {d['id']}. {d['voce']}\n\nEsito: {d['esito']}.\n\n{d['risposta']}"
+        for d in DOMANDE_SUE
+    )
+    aperte = [d["id"] for d in DOMANDE_SUE if d["esito"] == "resta tua"]
+    return f"""# Domande che ti faresti tu
+
+Motore, al posto del verificatore. Pagine lette il {DATA_RICERCA}.
+Nessuna di queste righe è scritta in `verifica/ciclo-001.md`.
+
+## Pagine
+
+{pagine}
+
+## Domande
+
+{domande}
+
+## Cosa resta aperto
+
+{", ".join(aperte) if aperte else "Niente."}
+
+S8 è la V1 del foglio di verifica. Le altre, su queste pagine, le ho chiuse io.
+Il pilota, se vive, sta dentro Yoyiyo Partner e sul desk: due frammenti, stessa settimana, data non teal oppure rotta di groupage da riscrivere. Si prenota con gli strumenti già in pagina.
 """
 
 

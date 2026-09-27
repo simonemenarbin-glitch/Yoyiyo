@@ -113,6 +113,10 @@ class EseguiTest(unittest.TestCase):
             dossier = (root / "dossier" / "ciclo-001.md").read_text(encoding="utf-8")
             self.assertIn("Soglia", dossier)
             self.assertIn("V4", dossier)
+            lettura = (root / "dossier" / "lettura-partner.md").read_text(encoding="utf-8")
+            self.assertIn("https://www.yoyiyo.biz/partner", lettura)
+            self.assertIn("resta tua", lettura)
+            self.assertIn("S8", lettura)
             ciclo_2 = (root / "dossier" / "ciclo-002.md").read_text(encoding="utf-8")
             self.assertIn("**in_attesa**", ciclo_2)
 

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from motore.conoscenza import DOMANDE
 from motore.giudizio import Risposta, giudica
-from motore.render import dossier_ciclo_1, dossier_ciclo_2, foglio_verifica
+from motore.render import dossier_ciclo_1, dossier_ciclo_2, foglio_verifica, lettura_partner
 
 
 def leggi_verifica(testo: str) -> dict[str, Risposta]:
@@ -51,6 +51,7 @@ def esegui(root: Path) -> str:
 
     risposte = leggi_verifica(percorso.read_text(encoding="utf-8"))
     (dossier / "ciclo-001.md").write_text(dossier_ciclo_1(), encoding="utf-8")
+    (dossier / "lettura-partner.md").write_text(lettura_partner(), encoding="utf-8")
 
     compilate = any(r.risposta.strip() for r in risposte.values())
     if compilate:
@@ -71,6 +72,7 @@ def main(argv: list[str], root: Path) -> int:
     stato = esegui(root)
     print(f"Soglia: {stato}")
     print("Dossier: dossier/ciclo-001.md")
+    print("Lettura: dossier/lettura-partner.md")
     print("Verifica: verifica/ciclo-001.md")
     return 0
 

@@ -123,9 +123,14 @@ GIRI = [
         "esito": "Aperto, dipende dal corridoio.",
         "risposta": (
             "archètravel e Aretina vendono già partenze garantite con due "
-            "partecipanti. Dove il fornitore accetta quel minimo, Soglia non "
-            "aggiunge nulla. Soglia ha senso dove il minimo resta alto: guida, "
-            "mezzo, allotment, regole del gruppo. Lo decidi tu con V9."
+            "partecipanti. In casa il calendario è più preciso: su "
+            "cinaingruppo.it la Base 2 parte in due solo sulle date teal, "
+            "con una quota diversa dalla Base 4. La Base 4 chiede quattro "
+            "persone quasi ogni giorno e una conferma almeno 45 giorni prima. "
+            "Il groupage su yoyiyo.biz è un su misura condiviso, minimo 4, "
+            "costruito su un nucleo di amici o famiglia. Soglia, sul tour "
+            "pronto, resta solo dove la data non è teal e il cliente non si "
+            "sposta. Lo decidi tu con V1 e V9."
         ),
     },
     {
@@ -286,6 +291,164 @@ DOMANDE = [
 
 # Obbligatorie per dichiarare il pilota vivo.
 OBBLIGATORIE = ("V1", "V2", "V3", "V4", "V6", "V9")
+
+# Pagine lette il 27 settembre 2026. La firma del verificatore non è questa lettura.
+PAGINE = [
+    {
+        "nome": "Yoyiyo Partner",
+        "url": "https://www.yoyiyo.biz/partner",
+        "fatto": (
+            "Licenza sotto MTI Srl per consulenti e creator, senza aprire "
+            "un'agenzia. Sito personale, Travel Compositor, desk Cina "
+            "(FIT, groupage, nozze). Fee d'ingresso zero, compenso sulla "
+            "performance. La linea creator può essere proposta anche alle "
+            "agenzie: la pagina parla di 2.500 contatti trade."
+        ),
+    },
+    {
+        "nome": "Tour pronti, cinaingruppo.it",
+        "url": "https://www.cinaingruppo.it/",
+        "fatto": (
+            "Base 4: minimo 4, quasi ogni giorno, conferma almeno 45 giorni "
+            "prima. Base 2: minimo 2, solo date teal, quota dedicata diversa "
+            "dalla Base 4. Prezzo in pagina: consigliato al pubblico. Listino "
+            "agenzie su richiesta."
+        ),
+    },
+    {
+        "nome": "Desk agenzie, yoyiyo.biz",
+        "url": "https://www.yoyiyo.biz/",
+        "fatto": (
+            "Groupage: su misura condiviso, minimo 4, rotta fuori catalogo, "
+            "costruito intorno a un nucleo di amici o famiglia. Su misura da "
+            "1–2 persone. Le agenzie scrivono a agenzieitalia@yoyiyo.biz."
+        ),
+    },
+    {
+        "nome": "Partner hotel, yoyiyo.it",
+        "url": "https://www.yoyiyo.it/hotel-e-servizi",
+        "fatto": (
+            "Incoming: hotel e aziende italiane delegano l'accoglienza dei "
+            "clienti cinesi. Altro mestiere, fuori da questa soglia."
+        ),
+    },
+]
+
+# Domande che il verificatore si farebbe, risposte lette sulle pagine.
+# «resta tua» = la pagina non basta, la riga in verifica resta vuota.
+DOMANDE_SUE = [
+    {
+        "id": "S1",
+        "voce": "Base 2 e Base 4 le vendo già. Sto ricostruendo il mio calendario?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "Sul tour pronto, sì se il cliente può spostarsi su una data teal: "
+            "lì si parte in due, con un'altra quota. Soglia sul tour pronto "
+            "resta un caso solo: due o tre persone, data non teal, cliente che "
+            "non sposta. In due frammenti si arriva a quattro, e quella data "
+            "è già Base 4."
+        ),
+    },
+    {
+        "id": "S2",
+        "voce": "Il groupage è già un su misura condiviso da quattro. Dov'è la differenza?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "La pagina costruisce il groupage su un nucleo di amici o famiglia, "
+            "una richiesta sola. Soglia metterebbe nello stesso viaggio due "
+            "nuclei che non si conoscono, tenuti da due facce diverse. Quella "
+            "frase, usata così, direbbe una cosa falsa. O si cambia la frase, "
+            "o quel groupage resta una famiglia sola."
+        ),
+    },
+    {
+        "id": "S3",
+        "voce": "I partner mi servono o mi complicano la promessa al cliente?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "Servono come primo bacino. In pagina operano sotto la licenza MTI, "
+            "senza partita IVA di agenzia: l'organizzatore scritto è uno. "
+            "È più pulito di due agenzie concorrenti. Complicano l'altra frase "
+            "della stessa pagina: il cliente compra il consulente, non un logo. "
+            "Prima del blocco va detto che in viaggio possono esserci persone "
+            "portate da un altro consulente, e che l'operativo sta al desk di Bologna."
+        ),
+    },
+    {
+        "id": "S4",
+        "voce": "Travel Compositor c'è già. Costruisco un altro booking?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "No. Sito, booking e AskIA sono nel pacchetto partner. Manca una "
+            "riga sul desk: quante persone, quale settimana, quale tetto, "
+            "tour pronto o rotta. Il motore somma. Tu firmi. Si prenota dopo, "
+            "con gli strumenti che la pagina già elenca."
+        ),
+    },
+    {
+        "id": "S5",
+        "voce": "Se due partner vedono il netto, vedono il listino confidenziale?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "cinaingruppo pubblica il prezzo consigliato al pubblico e tiene "
+            "il listino agenzie su richiesta. Ogni frammento mostra al suo "
+            "titolare solo se il proprio tetto regge. Non mostra il netto "
+            "dell'altro e non mostra il listino."
+        ),
+    },
+    {
+        "id": "S6",
+        "voce": "Le 48 ore per vincolarsi rompono i 45 giorni di conferma?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "Stanno dentro, non al posto. La pagina chiede la conferma almeno "
+            "45 giorni prima; sotto quella soglia la disponibilità si "
+            "riconferma, non è automatica. Le 48 ore sono il tempo in cui due "
+            "frammenti si vincolano tra loro, prima di quella conferma."
+        ),
+    },
+    {
+        "id": "S7",
+        "voce": "Il creator vende già al suo pubblico. Un posto residuo mi svuota la provvigione?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "La pagina ha già due uscite sulla stessa linea: l'audience del "
+            "creator e le agenzie. Un posto rimasto vuoto, se mai si apre, "
+            "passa dal partner che ha portato le persone, al prezzo minimo "
+            "scritto prima. Un prezzo pubblico più basso taglia il motivo per "
+            "cui il partner è entrato."
+        ),
+    },
+    {
+        "id": "S8",
+        "voce": "Quante volte al mese resto con due o tre persone su una data non teal, o con un groupage da due che ne chiede quattro?",
+        "esito": "resta tua",
+        "risposta": (
+            "La pagina non lo dice. Se la risposta vera è «sposto il cliente "
+            "sul teal, oppure gli faccio il su misura», Soglia su questo "
+            "corridoio si chiude. È la V1, e resta vuota finché non la scrivi."
+        ),
+    },
+    {
+        "id": "S9",
+        "voce": "La pagina partner degli hotel, su yoyiyo.it, c'entra con questa soglia?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "No. È incoming: strutture italiane che delegano l'accoglienza "
+            "dei clienti cinesi. Non deposita frammenti verso la Cina."
+        ),
+    },
+    {
+        "id": "S10",
+        "voce": "Allora la pagina Yoyiyo Partner mi è utile?",
+        "esito": "la pagina risponde",
+        "risposta": (
+            "Sì, come casa del pilota: licenza, desk, persone, booking. "
+            "No, come prova che la somma di due gruppi incompleti esista già. "
+            "In pagina quella somma non c'è."
+        ),
+    },
+]
 
 ESEMPIO = {
     "corridoio": "Cina classica, 8 giorni",

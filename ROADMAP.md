@@ -59,8 +59,8 @@
 
 ## Fase 1 — Vendita completa
 
-- [ ] Storefront multi-brand
-- [ ] Checkout guest + richiesta preventivo
+- [x] Storefront multi-brand (landing esistenti + /richiesta)
+- [x] Checkout guest + richiesta preventivo pubblica
 - [x] Listini agenzia partner
 - [ ] Documenti automatici (voucher / conferma)
 - [ ] Credenziali live connettori API (Travio/Hotelston/…) al posto del sandbox

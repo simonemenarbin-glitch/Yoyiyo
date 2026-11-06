@@ -91,9 +91,16 @@
 - [x] Reporting margini per brand/canale + scadenze cassa
 - [ ] AI quotazioni / import contratti
 
+## Fase 4.5 — Contabilità 74-ter (base fatta)
+
+- [x] Calcolo IVA sul margine (metodo margine lordo)
+- [x] FiscalDocument + UI `/app/contabilita`
+- [x] Stub SdI (nessun invio reale / nessun certificato)
+
 ## Fase 5 — Enterprise
 
 - [ ] Postgres multi-tenant hardening
 - [ ] MFA / SSO
 - [ ] Backup/DR e audit compliance
 - [ ] Billing SaaS (canoni per tenant)
+- [ ] SdI live (FatturaPA)

@@ -19,6 +19,7 @@ const more = [
   { href: "/app/b2b", label: "B2B" },
   { href: "/app/vendite-web", label: "Web" },
   { href: "/app/reporting", label: "Report" },
+  { href: "/app/contabilita", label: "74-ter" },
   { href: "/app/clienti", label: "Clienti" },
 ];
 

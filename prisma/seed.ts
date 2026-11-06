@@ -22,6 +22,7 @@ async function main() {
   await prisma.lead.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
+  await prisma.fiscalDocument.deleteMany().catch(() => undefined);
   await prisma.cashDeadline.deleteMany().catch(() => undefined);
   await prisma.guestCheckout.deleteMany().catch(() => undefined);
   await prisma.publicQuoteRequest.deleteMany().catch(() => undefined);
@@ -937,6 +938,33 @@ async function main() {
         notes: "Uscita cassa fornitori",
       },
     ],
+  });
+
+  await prisma.fiscalDocument.create({
+    data: {
+      organizationId: org.id,
+      practiceId: groupPractice.id,
+      partnerId: partner.id,
+      kind: "FATTURA_74TER",
+      status: "ISSUED",
+      number: "FT74-2026-0001",
+      customerName: partner.name,
+      totalSell: 8800,
+      totalCost: 7040,
+      marginBase: 1442.62,
+      vatRate: 22,
+      vatAmount: 317.38,
+      notes: "Margine lordo 1760 € → imponibile 1442.62 € + IVA 22% = 317.38 €.",
+      linesJson: JSON.stringify([
+        {
+          description: groupPractice.title,
+          reference: groupPractice.reference,
+          sell: 8800,
+          cost: 7040,
+        },
+      ]),
+      sdiStatus: "NOT_SENT",
+    },
   });
 
   const priceList = await prisma.partnerPriceList.create({

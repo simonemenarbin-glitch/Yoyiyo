@@ -13,6 +13,8 @@ import {
 } from "@/lib/actions/practices-ops";
 import { computeCancellationPenalty, suggestedDeposit } from "@/lib/practices/penalties";
 
+export const dynamic = "force-dynamic";
+
 export default async function PracticeDetailPage({
   params,
 }: {

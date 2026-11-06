@@ -4,6 +4,8 @@ import { getCurrentUser, primaryMembership } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { shortDate } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 export default async function PracticeDocumentPage({
   params,
 }: {

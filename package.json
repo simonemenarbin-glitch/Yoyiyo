@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && next build --webpack",
+    "build": "npx prisma generate && NODE_OPTIONS='--max-old-space-size=1536' next build --webpack",
     "start": "npx prisma migrate deploy && npx tsx prisma/seed.ts && next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",

@@ -771,6 +771,21 @@ export const UPGRADE_SQL = [
     "updatedAt" DATETIME NOT NULL
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "GuestCheckout_token_key" ON "GuestCheckout"("token")`,
+  `CREATE TABLE IF NOT EXISTS "CashDeadline" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "practiceId" TEXT,
+    "kind" TEXT NOT NULL DEFAULT 'DEPOSIT',
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "label" TEXT NOT NULL,
+    "dueDate" DATETIME NOT NULL,
+    "amount" REAL NOT NULL DEFAULT 0,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "paidAt" DATETIME,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
 ];
 
 // Extra alters appended below for AgencyPartner portal fields.

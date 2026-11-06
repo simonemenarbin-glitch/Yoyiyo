@@ -88,7 +88,7 @@
 ## Fase 4 — Growth
 
 - [ ] Campagne email/social
-- [ ] Reporting margini per brand/canale
+- [x] Reporting margini per brand/canale + scadenze cassa
 - [ ] AI quotazioni / import contratti
 
 ## Fase 5 — Enterprise

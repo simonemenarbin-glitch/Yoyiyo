@@ -196,6 +196,32 @@ enum SupplierConnectorStatus {
   ERROR
 }
 
+enum SupplementKind {
+  SINGLE
+  CHILD
+  INFANT
+  HALF_BOARD
+  FULL_BOARD
+  EXTRA_BED
+  CITY_TAX
+  SEASONAL
+  OTHER
+}
+
+enum AllotmentUnit {
+  ROOM
+  SEAT
+  PAX
+  UNIT
+}
+
+enum PolicyKind {
+  CANCELLATION
+  PAYMENT
+  RELEASE
+  GENERAL
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -209,6 +235,7 @@ model Organization {
   customers    Customer[]
   partners     AgencyPartner[]
   products     CatalogProduct[]
+  policies     ContractPolicy[]
   practices    Practice[]
   quotes       Quote[]
   leads        Lead[]
@@ -565,8 +592,12 @@ model CatalogProduct {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   ratePlans     RatePlan[]
+  periods       ContractPeriod[]
+  supplements   RateSupplement[]
+  allotments    AllotmentBucket[]
+  policies      ContractPolicy[]
   practiceLines PracticeLine[]
   quoteLines    QuoteLine[]
 
@@ -586,7 +617,100 @@ model RatePlan {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  product CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product CatalogProduct   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  periods ContractPeriod[]
+}
+
+/// Seasonal / date-window tariff on a product (Medusa-style contract period).
+model ContractPeriod {
+  id            String    @id @default(cuid())
+  productId     String
+  ratePlanId    String?
+  name          String
+  validFrom     DateTime
+  validTo       DateTime
+  netCost       Float
+  sellPrice     Float
+  currency      String    @default("EUR")
+  minStay       Int       @default(1)
+  /// "Prenotabile entro" — after this date the period falls back to base rate plan.
+  bookableUntil DateTime?
+  active        Boolean   @default(true)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  product     CatalogProduct   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ratePlan    RatePlan?        @relation(fields: [ratePlanId], references: [id], onDelete: SetNull)
+  supplements RateSupplement[]
+  allotments  AllotmentBucket[]
+
+  @@index([productId, validFrom, validTo])
+}
+
+model RateSupplement {
+  id         String         @id @default(cuid())
+  productId  String
+  periodId   String?
+  kind       SupplementKind @default(OTHER)
+  name       String
+  amount     Float
+  isPercent  Boolean        @default(false)
+  perNight   Boolean        @default(true)
+  perPerson  Boolean        @default(false)
+  validFrom  DateTime?
+  validTo    DateTime?
+  active     Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  product CatalogProduct  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  period  ContractPeriod? @relation(fields: [periodId], references: [id], onDelete: SetNull)
+
+  @@index([productId, kind])
+}
+
+model AllotmentBucket {
+  id             String        @id @default(cuid())
+  productId      String
+  periodId       String?
+  name           String
+  unit           AllotmentUnit @default(ROOM)
+  totalUnits     Int           @default(0)
+  releasedUnits  Int           @default(0)
+  bookedUnits    Int           @default(0)
+  /// Days before check-in when unsold allotment releases to free-sale / stop-sale.
+  releaseDays    Int           @default(21)
+  freeSale       Boolean       @default(false)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  product CatalogProduct  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  period  ContractPeriod? @relation(fields: [periodId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+}
+
+model ContractPolicy {
+  id             String     @id @default(cuid())
+  organizationId String
+  productId      String?
+  kind           PolicyKind @default(CANCELLATION)
+  name           String
+  bodyText       String
+  daysBefore     Int?
+  penaltyPct     Float?
+  depositPct     Float?
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  product      CatalogProduct? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, kind])
+  @@index([productId])
 }
 
 model Practice {

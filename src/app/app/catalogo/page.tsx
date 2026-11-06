@@ -1,53 +1,12 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, primaryMembership } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StatusPill } from "@/components/StatusPill";
 import { eur } from "@/lib/format";
 import { priceSourceLabel, productTypeLabel } from "@/lib/labels";
-
-async function createProduct(formData: FormData) {
-  "use server";
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  const membership = primaryMembership(user)!;
-
-  const name = String(formData.get("name") || "").trim();
-  const type = String(formData.get("type") || "HOTEL") as
-    | "HOTEL"
-    | "FLIGHT"
-    | "TRANSFER"
-    | "EXCURSION"
-    | "CRUISE"
-    | "FERRY"
-    | "INSURANCE"
-    | "PACKAGE"
-    | "OTHER";
-  const city = String(formData.get("city") || "") || null;
-  const code = String(formData.get("code") || "") || null;
-  const netCost = Number(formData.get("netCost") || 0);
-  const sellPrice = Number(formData.get("sellPrice") || 0);
-
-  await prisma.catalogProduct.create({
-    data: {
-      organizationId: membership.organizationId,
-      name,
-      type,
-      city,
-      code,
-      country: "Cina",
-      priceSource: "OWN_LIST",
-      ratePlans: {
-        create: {
-          name: "Tariffa base",
-          netCost,
-          sellPrice,
-        },
-      },
-    },
-  });
-
-  redirect("/app/catalogo");
-}
+import { createCatalogProduct } from "@/lib/actions/catalog";
+import { PageHeader, btnDark, fieldClass } from "@/components/ui";
 
 export default async function CatalogPage() {
   const user = await getCurrentUser();
@@ -56,60 +15,40 @@ export default async function CatalogPage() {
 
   const products = await prisma.catalogProduct.findMany({
     where: { organizationId: membership.organizationId },
-    include: { ratePlans: true },
+    include: {
+      ratePlans: true,
+      periods: true,
+      allotments: true,
+      supplements: true,
+      policies: true,
+    },
     orderBy: [{ type: "asc" }, { name: "asc" }],
   });
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="text-xs uppercase tracking-[0.18em] text-teal-900/50">Contratti</div>
-        <h1
-          className="mt-1 text-3xl text-[#0F3D3E]"
-          style={{ fontFamily: "var(--font-display), Georgia, serif" }}
-        >
-          Listino servizi
-        </h1>
-        <p className="mt-1 text-slate-600">
-          Listino proprio oggi (OWN_LIST). Ogni prodotto ha già priceSource / supplierRef per le API fornitori.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Contratti"
+        title="Catalogo e contratti"
+        description="Listino proprio con periodi stagionali, allotment, supplementi e politiche — stile Medusa produzione."
+      />
 
       <form
-        action={createProduct}
+        action={createCatalogProduct}
         className="grid gap-3 rounded-2xl border border-teal-900/10 bg-white/80 p-4 md:grid-cols-6"
       >
-        <input
-          name="name"
-          required
-          placeholder="Nome servizio"
-          className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-2"
-        />
-        <select name="type" className="rounded-xl border border-slate-200 px-3 py-2">
+        <input name="name" required placeholder="Nome servizio" className={`${fieldClass} md:col-span-2`} />
+        <select name="type" className={fieldClass}>
           {Object.entries(productTypeLabel).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
           ))}
         </select>
-        <input name="city" placeholder="Città" className="rounded-xl border border-slate-200 px-3 py-2" />
-        <input
-          name="netCost"
-          type="number"
-          step="1"
-          placeholder="Netto"
-          className="rounded-xl border border-slate-200 px-3 py-2"
-        />
-        <input
-          name="sellPrice"
-          type="number"
-          step="1"
-          placeholder="Vendita"
-          className="rounded-xl border border-slate-200 px-3 py-2"
-        />
-        <button className="rounded-xl bg-[#0F3D3E] px-4 py-2 text-sm font-medium text-white md:col-span-6 md:w-fit">
-          Aggiungi al catalogo
-        </button>
+        <input name="city" placeholder="Città" className={fieldClass} />
+        <input name="netCost" type="number" step="1" placeholder="Netto" className={fieldClass} />
+        <input name="sellPrice" type="number" step="1" placeholder="Vendita" className={fieldClass} />
+        <button className={`${btnDark} md:col-span-6 md:w-fit`}>Aggiungi al catalogo</button>
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-teal-900/10 bg-white/80">
@@ -118,29 +57,32 @@ export default async function CatalogPage() {
             <tr>
               <th className="px-4 py-3 font-medium">Prodotto</th>
               <th className="px-4 py-3 font-medium">Tipo</th>
+              <th className="px-4 py-3 font-medium">Contratto</th>
               <th className="px-4 py-3 font-medium">Fonte</th>
-              <th className="px-4 py-3 font-medium">Città</th>
               <th className="px-4 py-3 font-medium">Stato</th>
-              <th className="px-4 py-3 font-medium text-right">Netto</th>
-              <th className="px-4 py-3 font-medium text-right">Vendita</th>
+              <th className="px-4 py-3 font-medium text-right">Vendita base</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => {
               const rate = p.ratePlans[0];
               return (
-                <tr key={p.id} className="border-t border-slate-100">
+                <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50/80">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-slate-500">{p.code || "—"}</div>
+                    <Link href={`/app/catalogo/${p.id}`} className="font-medium text-[#0F3D3E] hover:underline">
+                      {p.name}
+                    </Link>
+                    <div className="text-slate-500">{p.code || "—"} · {p.city || "—"}</div>
                   </td>
                   <td className="px-4 py-3">{productTypeLabel[p.type]}</td>
+                  <td className="px-4 py-3 text-xs text-slate-600">
+                    {p.periods.length} periodi · {p.allotments.length} allot. · {p.supplements.length}{" "}
+                    supp. · {p.policies.length} policy
+                  </td>
                   <td className="px-4 py-3">{priceSourceLabel[p.priceSource]}</td>
-                  <td className="px-4 py-3">{p.city || "—"}</td>
                   <td className="px-4 py-3">
                     <StatusPill>{p.active ? "Attivo" : "Off"}</StatusPill>
                   </td>
-                  <td className="px-4 py-3 text-right">{rate ? eur(rate.netCost) : "—"}</td>
                   <td className="px-4 py-3 text-right font-medium">
                     {rate ? eur(rate.sellPrice) : "—"}
                   </td>

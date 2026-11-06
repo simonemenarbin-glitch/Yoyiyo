@@ -36,6 +36,14 @@
 - [x] Conversione preventivo → pratica
 - [x] Pagina `/app/fornitori` enable/disable connettori
 
+## Fase 0.7 — Catalogo contratti (fatto)
+
+- [x] Periodi / stagioni con prenotabile-entro
+- [x] Allotment (unità, booked, release, free-sale)
+- [x] Supplementi (single, child, city tax, seasonal…)
+- [x] Politiche cancellazione / pagamento / release
+- [x] Own-list search risolve periodo + supplementi
+
 ## Fase 1 — Vendita completa
 
 - [ ] Storefront multi-brand

@@ -1,4 +1,5 @@
 import type {
+  AllotmentUnit,
   BrandStatus,
   CampaignChannel,
   CampaignStatus,
@@ -7,6 +8,7 @@ import type {
   LeadSource,
   MembershipRole,
   PipelineStage,
+  PolicyKind,
   PracticeStatus,
   PriceSource,
   ProductType,
@@ -14,6 +16,7 @@ import type {
   SalesChannel,
   SitePageStatus,
   SitePageType,
+  SupplementKind,
 } from "@prisma/client";
 import { missingFieldLabel as missingFieldLabelMap } from "@/lib/intake/types";
 import type { MissingFieldKey } from "@/lib/intake/types";
@@ -187,3 +190,29 @@ export const sitePageTypesOrdered: SitePageType[] = [
   "CATALOG",
   "CONTENT",
 ];
+
+export const supplementKindLabel: Record<SupplementKind, string> = {
+  SINGLE: "Supplemento single",
+  CHILD: "Bambino",
+  INFANT: "Infant",
+  HALF_BOARD: "Mezza pensione",
+  FULL_BOARD: "Pensione completa",
+  EXTRA_BED: "Letto aggiuntivo",
+  CITY_TAX: "City tax",
+  SEASONAL: "Supplemento stagionale",
+  OTHER: "Altro",
+};
+
+export const allotmentUnitLabel: Record<AllotmentUnit, string> = {
+  ROOM: "Camere",
+  SEAT: "Posti",
+  PAX: "Pax",
+  UNIT: "Unità",
+};
+
+export const policyKindLabel: Record<PolicyKind, string> = {
+  CANCELLATION: "Cancellazione",
+  PAYMENT: "Pagamento",
+  RELEASE: "Release",
+  GENERAL: "Generale",
+};

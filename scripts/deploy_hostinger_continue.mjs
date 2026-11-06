@@ -81,7 +81,8 @@ async function tusUpload(url, authKey, restAuthKey, dest, filePath) {
 // Ensure build script + env for seed/migrate
 const pkgPath = path.join(ROOT, "package.json");
 const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-pkg.scripts.build = "npx prisma generate && next build --webpack";
+pkg.scripts.build =
+  "npx prisma generate && NODE_OPTIONS='--max-old-space-size=1536' next build --webpack";
 pkg.scripts.start =
   "npx prisma migrate deploy && npx tsx prisma/seed.ts && next start -H 0.0.0.0 -p ${PORT:-3000}";
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");

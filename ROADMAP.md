@@ -44,6 +44,13 @@
 - [x] Politiche cancellazione / pagamento / release
 - [x] Own-list search risolve periodo + supplementi
 
+## Fase 0.8 — Connettori sandbox (fatto)
+
+- [x] Adapter interface: search / quote / book / cancel + capabilities
+- [x] Travio sandbox (pacchetti/DMC) e Hotelston sandbox (hotel OTA)
+- [x] UI `/app/fornitori` sandbox tester
+- [x] Default connectors READY in sandbox (no live keys)
+
 ## Fase 1 — Vendita completa
 
 - [ ] Storefront multi-brand

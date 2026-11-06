@@ -6,6 +6,14 @@ export function createOwnListAdapter(prisma: PrismaClient): SupplierAdapter {
   return {
     code: "own-list",
     name: "Listino proprio",
+    capabilities: {
+      search: true,
+      quote: false,
+      book: false,
+      cancel: false,
+      liveCredentialsRequired: false,
+      sandbox: false,
+    },
     async search(input: SupplierSearchInput): Promise<SupplierOffer[]> {
       const q = (input.query || "").trim().toLowerCase();
       const city = (input.city || "").trim().toLowerCase();

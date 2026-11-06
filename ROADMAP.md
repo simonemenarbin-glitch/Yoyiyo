@@ -41,21 +41,22 @@
 - [ ] Storefront multi-brand
 - [ ] Checkout guest + richiesta preventivo
 - [ ] Listini agenzia partner
-- [ ] Documenti automatici (voucher / conferma)
+- [x] Documenti automatici (voucher / conferma / foglio notizie) — vedi Fase 1.5
 - [ ] Credenziali live connettori API (Travio/Hotelston/…) al posto del sandbox
 
 ## Fase 1.5 — Pratiche ops + documenti (fatto)
 
 - [x] Policy penali FIT vs groupage >20 (acconto 10% / release 120 gg + scala)
 - [x] Variazioni e cancellazioni (riga / totale) con storico `PracticeChange`
-- [x] Documenti: voucher, conferma, foglio notizie (HTML stampabile)
-- [x] Flag groupage, acconto, confirmedAt su pratica
+- [x] Documenti: voucher, conferma, foglio notizie (HTML stampabile + Word .doc)
+- [x] Flag groupage, acconto, confirmedAt, date/release editabili su pratica
+- [x] Test smoke penali (`npm run test:penalties`)
 
 ## Fase 2 — Operations
 
 - [ ] Rooming list strutturata + pax nominativi
 - [ ] Task operativi e assegnazioni
-- [ ] Export PDF nativo (oltre HTML print)
+- [ ] Export PDF nativo (oltre HTML / Word)
 - [ ] RQ fornitore tracciate per riga
 
 ## Fase 3 — CRM omnicanale

@@ -46,6 +46,12 @@ export async function updatePracticeOps(formData: FormData) {
   const groupageOver20 =
     String(formData.get("groupageOver20") || "") === "1" || paxCount > 20;
   const notes = String(formData.get("notes") || "") || null;
+  const departureRaw = String(formData.get("departureDate") || "").trim();
+  const returnRaw = String(formData.get("returnDate") || "").trim();
+  const releaseDays = Math.max(
+    1,
+    Number(formData.get("releaseDays") || practice.releaseDays || 120),
+  );
   const deposit = suggestedDeposit(practice.totalSell, groupageOver20);
 
   const data: Record<string, unknown> = {
@@ -55,7 +61,9 @@ export async function updatePracticeOps(formData: FormData) {
     notes,
     depositPct: groupageOver20 ? 10 : 0,
     depositAmount: groupageOver20 ? deposit.amount : 0,
-    releaseDays: 120,
+    releaseDays,
+    departureDate: departureRaw ? new Date(`${departureRaw}T12:00:00`) : null,
+    returnDate: returnRaw ? new Date(`${returnRaw}T12:00:00`) : null,
     updatedAt: new Date(),
   };
 

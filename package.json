@@ -7,6 +7,7 @@
     "build": "npx prisma generate && NODE_OPTIONS='--max-old-space-size=1536' next build --webpack",
     "start": "npx prisma migrate deploy && npx tsx prisma/seed.ts && next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "eslint",
+    "test:penalties": "node scripts/test_penalties.mjs",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force"

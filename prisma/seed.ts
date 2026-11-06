@@ -15,13 +15,20 @@ async function main() {
   await prisma.channelConnection.deleteMany();
   await prisma.quoteLine.deleteMany();
   await prisma.quote.deleteMany();
+  await prisma.practiceDocument.deleteMany().catch(() => undefined);
+  await prisma.practiceChange.deleteMany().catch(() => undefined);
   await prisma.practiceLine.deleteMany();
   await prisma.practice.deleteMany();
   await prisma.lead.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
+  await prisma.rateSupplement.deleteMany();
+  await prisma.allotmentBucket.deleteMany();
+  await prisma.contractPolicy.deleteMany();
+  await prisma.contractPeriod.deleteMany();
   await prisma.ratePlan.deleteMany();
   await prisma.catalogProduct.deleteMany();
+  await prisma.supplierConnector.deleteMany().catch(() => undefined);
   await prisma.agencyPartner.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.session.deleteMany();
@@ -136,7 +143,7 @@ async function main() {
       code: "PEK-HID",
       city: "Pechino",
       country: "Cina",
-      description: "4★ BB rimborsabile",
+      description: "4★ BB rimborsabile — contratto diretto con periodi e allotment",
       priceSource: "OWN_LIST",
       ratePlans: {
         create: {
@@ -147,6 +154,118 @@ async function main() {
         },
       },
     },
+  });
+
+  const hotelHigh = await prisma.contractPeriod.create({
+    data: {
+      productId: hotel.id,
+      name: "Alta stagione estate 2026",
+      validFrom: new Date("2026-07-01"),
+      validTo: new Date("2026-08-31"),
+      netCost: 125,
+      sellPrice: 160,
+      minStay: 2,
+      bookableUntil: new Date("2026-06-15"),
+      notes: "Tariffa estate — prenotabile entro 15/06",
+    },
+  });
+
+  await prisma.contractPeriod.create({
+    data: {
+      productId: hotel.id,
+      name: "Bassa stagione inverno 2026/27",
+      validFrom: new Date("2026-11-01"),
+      validTo: new Date("2027-02-28"),
+      netCost: 75,
+      sellPrice: 95,
+      minStay: 1,
+    },
+  });
+
+  await prisma.rateSupplement.createMany({
+    data: [
+      {
+        productId: hotel.id,
+        kind: "SINGLE",
+        name: "Supplemento single",
+        amount: 35,
+        perNight: true,
+        perPerson: false,
+      },
+      {
+        productId: hotel.id,
+        periodId: hotelHigh.id,
+        kind: "SEASONAL",
+        name: "Peak summer night",
+        amount: 15,
+        perNight: true,
+        perPerson: false,
+      },
+      {
+        productId: hotel.id,
+        kind: "CHILD",
+        name: "Bambino 2–11 in extra bed",
+        amount: 40,
+        isPercent: true,
+        perNight: false,
+        perPerson: true,
+      },
+      {
+        productId: hotel.id,
+        kind: "CITY_TAX",
+        name: "City tax Pechino (stimata)",
+        amount: 4,
+        perNight: true,
+        perPerson: true,
+      },
+    ],
+  });
+
+  await prisma.allotmentBucket.create({
+    data: {
+      productId: hotel.id,
+      periodId: hotelHigh.id,
+      name: "DBL allotment estate PEK-HID",
+      unit: "ROOM",
+      totalUnits: 12,
+      bookedUnits: 2,
+      releasedUnits: 0,
+      releaseDays: 21,
+      freeSale: false,
+      notes: "Contratto DMC Pechino — release 21 gg",
+    },
+  });
+
+  await prisma.contractPolicy.createMany({
+    data: [
+      {
+        organizationId: org.id,
+        productId: hotel.id,
+        kind: "CANCELLATION",
+        name: "Cancellazione FIT hotel",
+        bodyText:
+          "Cancellazione gratuita fino a 7 giorni prima del check-in. Dal 6° giorno: penale 100% della prima notte.",
+        daysBefore: 7,
+        penaltyPct: 100,
+      },
+      {
+        organizationId: org.id,
+        productId: hotel.id,
+        kind: "PAYMENT",
+        name: "Pagamento hotel contratto",
+        bodyText: "Acconto 30% alla conferma; saldo 21 giorni prima dell'arrivo.",
+        daysBefore: 21,
+        depositPct: 30,
+      },
+      {
+        organizationId: org.id,
+        kind: "RELEASE",
+        name: "Release allotment standard TO",
+        bodyText:
+          "Allotment non venduto rilasciato a free-sale / stop-sale N giorni prima (default 21).",
+        daysBefore: 21,
+      },
+    ],
   });
 
   const train = await prisma.catalogProduct.create({

@@ -1,0 +1,610 @@
+export const BOOTSTRAP_SQL = `
+CREATE TABLE "Organization" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "vatNumber" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+CREATE TABLE "Brand" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "tagline" TEXT,
+    "primaryColor" TEXT NOT NULL DEFAULT '#0F3D3E',
+    "secondaryColor" TEXT NOT NULL DEFAULT '#B33A2B',
+    "logoUrl" TEXT,
+    "domain" TEXT,
+    "websiteUrl" TEXT,
+    "seoTitle" TEXT,
+    "seoDescription" TEXT,
+    "socialJson" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Brand_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+CREATE TABLE "Membership" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'OPERATOR',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Membership_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Membership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "Customer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "clientType" TEXT NOT NULL DEFAULT 'B2C',
+    "preferredBrandId" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Customer_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "AgencyPartner" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "commissionPct" REAL NOT NULL DEFAULT 10,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "AgencyPartner_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "Lead" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "campaignId" TEXT,
+    "customerId" TEXT,
+    "partnerId" TEXT,
+    "assigneeUserId" TEXT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "clientType" TEXT NOT NULL DEFAULT 'B2C',
+    "pipelineName" TEXT,
+    "source" TEXT NOT NULL DEFAULT 'OTHER',
+    "sourceDetail" TEXT,
+    "pipelineStage" TEXT NOT NULL DEFAULT 'NEW',
+    "intakeStatus" TEXT NOT NULL DEFAULT 'RAW',
+    "interest" TEXT,
+    "paxCount" INTEGER NOT NULL DEFAULT 2,
+    "budgetHint" REAL,
+    "departureHint" TEXT,
+    "durationDays" INTEGER,
+    "destinationsJson" TEXT,
+    "rawSourceText" TEXT,
+    "missingFieldsJson" TEXT,
+    "draftReply" TEXT,
+    "parsedJson" TEXT,
+    "notes" TEXT,
+    "lastActivityAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Lead_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Lead_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Lead_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Lead_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES "AgencyPartner" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Lead_assigneeUserId_fkey" FOREIGN KEY ("assigneeUserId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE "CatalogProduct" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "code" TEXT,
+    "city" TEXT,
+    "country" TEXT,
+    "description" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "priceSource" TEXT NOT NULL DEFAULT 'OWN_LIST',
+    "supplierCode" TEXT,
+    "supplierRef" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "CatalogProduct_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "RatePlan" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "productId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "netCost" REAL NOT NULL,
+    "sellPrice" REAL NOT NULL,
+    "validFrom" DATETIME,
+    "validTo" DATETIME,
+    "cancellationPolicy" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "RatePlan_productId_fkey" FOREIGN KEY ("productId") REFERENCES "CatalogProduct" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "Practice" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "customerId" TEXT,
+    "partnerId" TEXT,
+    "reference" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "channel" TEXT NOT NULL DEFAULT 'COUNTER',
+    "departureDate" DATETIME,
+    "returnDate" DATETIME,
+    "paxCount" INTEGER NOT NULL DEFAULT 1,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "totalSell" REAL NOT NULL DEFAULT 0,
+    "totalCost" REAL NOT NULL DEFAULT 0,
+    "marginPct" REAL NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Practice_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Practice_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Practice_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Practice_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES "AgencyPartner" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE "PracticeLine" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "practiceId" TEXT NOT NULL,
+    "productId" TEXT,
+    "serviceType" TEXT NOT NULL DEFAULT 'OTHER',
+    "title" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "netCost" REAL NOT NULL DEFAULT 0,
+    "sellPrice" REAL NOT NULL DEFAULT 0,
+    "startDate" DATETIME,
+    "endDate" DATETIME,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "PracticeLine_practiceId_fkey" FOREIGN KEY ("practiceId") REFERENCES "Practice" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "PracticeLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "CatalogProduct" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE "Quote" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "practiceId" TEXT,
+    "customerId" TEXT,
+    "partnerId" TEXT,
+    "leadId" TEXT,
+    "number" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "channel" TEXT NOT NULL DEFAULT 'B2B',
+    "pipelineStage" TEXT NOT NULL DEFAULT 'QUOTING',
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "paxCount" INTEGER NOT NULL DEFAULT 2,
+    "departureDate" DATETIME,
+    "returnDate" DATETIME,
+    "totalSell" REAL NOT NULL DEFAULT 0,
+    "totalCost" REAL NOT NULL DEFAULT 0,
+    "marginPct" REAL NOT NULL DEFAULT 0,
+    "validUntil" DATETIME,
+    "notes" TEXT,
+    "hypothesisNote" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Quote_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Quote_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Quote_practiceId_fkey" FOREIGN KEY ("practiceId") REFERENCES "Practice" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Quote_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Quote_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES "AgencyPartner" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Quote_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE "QuoteLine" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "quoteId" TEXT NOT NULL,
+    "productId" TEXT,
+    "serviceType" TEXT NOT NULL DEFAULT 'OTHER',
+    "title" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 1,
+    "netCost" REAL NOT NULL DEFAULT 0,
+    "unitPrice" REAL NOT NULL DEFAULT 0,
+    "priceSource" TEXT NOT NULL DEFAULT 'OWN_LIST',
+    "supplierCode" TEXT,
+    "supplierRef" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "QuoteLine_quoteId_fkey" FOREIGN KEY ("quoteId") REFERENCES "Quote" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "QuoteLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "CatalogProduct" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE "AuditLog" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "userId" TEXT,
+    "action" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT,
+    "metaJson" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AuditLog_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX "Organization_slug_key" ON "Organization"("slug");
+CREATE UNIQUE INDEX "Brand_organizationId_slug_key" ON "Brand"("organizationId", "slug");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "Membership_organizationId_userId_key" ON "Membership"("organizationId", "userId");
+CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
+CREATE INDEX "Lead_organizationId_pipelineStage_idx" ON "Lead"("organizationId", "pipelineStage");
+CREATE INDEX "Lead_organizationId_source_idx" ON "Lead"("organizationId", "source");
+CREATE INDEX "Lead_organizationId_intakeStatus_idx" ON "Lead"("organizationId", "intakeStatus");
+CREATE INDEX "CatalogProduct_organizationId_type_idx" ON "CatalogProduct"("organizationId", "type");
+CREATE INDEX "Practice_organizationId_status_idx" ON "Practice"("organizationId", "status");
+CREATE UNIQUE INDEX "Practice_organizationId_reference_key" ON "Practice"("organizationId", "reference");
+CREATE UNIQUE INDEX "Quote_organizationId_number_key" ON "Quote"("organizationId", "number");
+CREATE INDEX "Quote_organizationId_pipelineStage_idx" ON "Quote"("organizationId", "pipelineStage");
+
+CREATE TABLE "ChannelConnection" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL DEFAULT true,
+    "host" TEXT,
+    "port" INTEGER,
+    "username" TEXT,
+    "secret" TEXT,
+    "mailbox" TEXT DEFAULT 'INBOX',
+    "lookbackDays" INTEGER NOT NULL DEFAULT 3,
+    "configJson" TEXT,
+    "lastSyncAt" DATETIME,
+    "lastError" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "ChannelConnection_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "IngestedMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "connectionId" TEXT,
+    "source" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "fingerprint" TEXT NOT NULL,
+    "fromName" TEXT,
+    "fromAddress" TEXT,
+    "subject" TEXT,
+    "receivedAt" DATETIME,
+    "rawText" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'FETCHED',
+    "leadId" TEXT,
+    "quoteId" TEXT,
+    "errorText" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "IngestedMessage_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "IngestedMessage_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "ChannelConnection" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "IngestedMessage_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE INDEX "ChannelConnection_organizationId_enabled_idx" ON "ChannelConnection"("organizationId", "enabled");
+CREATE UNIQUE INDEX "ChannelConnection_organizationId_label_key" ON "ChannelConnection"("organizationId", "label");
+CREATE UNIQUE INDEX "IngestedMessage_organizationId_fingerprint_key" ON "IngestedMessage"("organizationId", "fingerprint");
+CREATE INDEX "IngestedMessage_organizationId_status_idx" ON "IngestedMessage"("organizationId", "status");
+CREATE INDEX "IngestedMessage_organizationId_source_idx" ON "IngestedMessage"("organizationId", "source");
+
+CREATE TABLE "ConversationMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "leadId" TEXT NOT NULL,
+    "connectionId" TEXT,
+    "userId" TEXT,
+    "direction" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "channelKind" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'LOGGED',
+    "toAddress" TEXT,
+    "fromAddress" TEXT,
+    "subject" TEXT,
+    "body" TEXT NOT NULL,
+    "providerId" TEXT,
+    "errorText" TEXT,
+    "ingestedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "ConversationMessage_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "ConversationMessage_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "ConversationMessage_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "ChannelConnection" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "ConversationMessage_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE INDEX "ConversationMessage_leadId_createdAt_idx" ON "ConversationMessage"("leadId", "createdAt");
+CREATE INDEX "ConversationMessage_organizationId_direction_idx" ON "ConversationMessage"("organizationId", "direction");
+
+CREATE TABLE "Campaign" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "channel" TEXT NOT NULL DEFAULT 'LANDING',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "goal" TEXT,
+    "utmCampaign" TEXT,
+    "utmSource" TEXT,
+    "utmMedium" TEXT,
+    "budget" REAL NOT NULL DEFAULT 0,
+    "spend" REAL NOT NULL DEFAULT 0,
+    "impressions" INTEGER NOT NULL DEFAULT 0,
+    "clicks" INTEGER NOT NULL DEFAULT 0,
+    "leadsCount" INTEGER NOT NULL DEFAULT 0,
+    "revenueAttributed" REAL NOT NULL DEFAULT 0,
+    "startAt" DATETIME,
+    "endAt" DATETIME,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Campaign_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Campaign_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "BrandSite" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "campaignId" TEXT,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "pageType" TEXT NOT NULL DEFAULT 'LANDING',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "title" TEXT NOT NULL,
+    "subtitle" TEXT,
+    "ctaLabel" TEXT DEFAULT 'Richiedi preventivo',
+    "ctaHref" TEXT,
+    "heroImageUrl" TEXT,
+    "blocksJson" TEXT,
+    "customCss" TEXT,
+    "views" INTEGER NOT NULL DEFAULT 0,
+    "formSubmits" INTEGER NOT NULL DEFAULT 0,
+    "publishedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "BrandSite_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "BrandSite_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "BrandSite_campaignId_fkey" FOREIGN KEY ("campaignId") REFERENCES "Campaign" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE INDEX "Campaign_organizationId_brandId_idx" ON "Campaign"("organizationId", "brandId");
+CREATE INDEX "Campaign_organizationId_status_idx" ON "Campaign"("organizationId", "status");
+CREATE UNIQUE INDEX "BrandSite_brandId_slug_key" ON "BrandSite"("brandId", "slug");
+CREATE INDEX "BrandSite_organizationId_brandId_idx" ON "BrandSite"("organizationId", "brandId");
+CREATE INDEX "BrandSite_organizationId_status_idx" ON "BrandSite"("organizationId", "status");
+CREATE INDEX "Lead_organizationId_campaignId_idx" ON "Lead"("organizationId", "campaignId");
+`;
+
+/** Upgrade statements for DBs created before CRM/pipeline (ignore errors if column exists). */
+export const UPGRADE_SQL = [
+  `CREATE TABLE IF NOT EXISTS "Lead" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "customerId" TEXT,
+    "partnerId" TEXT,
+    "assigneeUserId" TEXT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "source" TEXT NOT NULL DEFAULT 'OTHER',
+    "sourceDetail" TEXT,
+    "pipelineStage" TEXT NOT NULL DEFAULT 'NEW',
+    "interest" TEXT,
+    "paxCount" INTEGER NOT NULL DEFAULT 2,
+    "budgetHint" REAL,
+    "notes" TEXT,
+    "lastActivityAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Lead_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE INDEX IF NOT EXISTS "Lead_organizationId_pipelineStage_idx" ON "Lead"("organizationId", "pipelineStage")`,
+  `CREATE INDEX IF NOT EXISTS "Lead_organizationId_source_idx" ON "Lead"("organizationId", "source")`,
+  `CREATE INDEX IF NOT EXISTS "Lead_organizationId_intakeStatus_idx" ON "Lead"("organizationId", "intakeStatus")`,
+  `CREATE INDEX IF NOT EXISTS "Quote_organizationId_pipelineStage_idx" ON "Quote"("organizationId", "pipelineStage")`,
+  `CREATE TABLE IF NOT EXISTS "ChannelConnection" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL DEFAULT true,
+    "host" TEXT,
+    "port" INTEGER,
+    "username" TEXT,
+    "secret" TEXT,
+    "mailbox" TEXT DEFAULT 'INBOX',
+    "lookbackDays" INTEGER NOT NULL DEFAULT 3,
+    "configJson" TEXT,
+    "lastSyncAt" DATETIME,
+    "lastError" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "ChannelConnection_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE TABLE IF NOT EXISTS "IngestedMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "connectionId" TEXT,
+    "source" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "fingerprint" TEXT NOT NULL,
+    "fromName" TEXT,
+    "fromAddress" TEXT,
+    "subject" TEXT,
+    "receivedAt" DATETIME,
+    "rawText" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'FETCHED',
+    "leadId" TEXT,
+    "quoteId" TEXT,
+    "errorText" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "IngestedMessage_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE INDEX IF NOT EXISTS "ChannelConnection_organizationId_enabled_idx" ON "ChannelConnection"("organizationId", "enabled")`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "ChannelConnection_organizationId_label_key" ON "ChannelConnection"("organizationId", "label")`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "IngestedMessage_organizationId_fingerprint_key" ON "IngestedMessage"("organizationId", "fingerprint")`,
+  `CREATE INDEX IF NOT EXISTS "IngestedMessage_organizationId_status_idx" ON "IngestedMessage"("organizationId", "status")`,
+  `CREATE TABLE IF NOT EXISTS "ConversationMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "leadId" TEXT NOT NULL,
+    "connectionId" TEXT,
+    "userId" TEXT,
+    "direction" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "channelKind" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'LOGGED',
+    "toAddress" TEXT,
+    "fromAddress" TEXT,
+    "subject" TEXT,
+    "body" TEXT NOT NULL,
+    "providerId" TEXT,
+    "errorText" TEXT,
+    "ingestedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "ConversationMessage_leadId_createdAt_idx" ON "ConversationMessage"("leadId", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "ConversationMessage_organizationId_direction_idx" ON "ConversationMessage"("organizationId", "direction")`,
+  `CREATE TABLE IF NOT EXISTS "Campaign" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "channel" TEXT NOT NULL DEFAULT 'LANDING',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "goal" TEXT,
+    "utmCampaign" TEXT,
+    "utmSource" TEXT,
+    "utmMedium" TEXT,
+    "budget" REAL NOT NULL DEFAULT 0,
+    "spend" REAL NOT NULL DEFAULT 0,
+    "impressions" INTEGER NOT NULL DEFAULT 0,
+    "clicks" INTEGER NOT NULL DEFAULT 0,
+    "leadsCount" INTEGER NOT NULL DEFAULT 0,
+    "revenueAttributed" REAL NOT NULL DEFAULT 0,
+    "startAt" DATETIME,
+    "endAt" DATETIME,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "BrandSite" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "campaignId" TEXT,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "pageType" TEXT NOT NULL DEFAULT 'LANDING',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "title" TEXT NOT NULL,
+    "subtitle" TEXT,
+    "ctaLabel" TEXT DEFAULT 'Richiedi preventivo',
+    "ctaHref" TEXT,
+    "heroImageUrl" TEXT,
+    "blocksJson" TEXT,
+    "customCss" TEXT,
+    "views" INTEGER NOT NULL DEFAULT 0,
+    "formSubmits" INTEGER NOT NULL DEFAULT 0,
+    "publishedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "Campaign_organizationId_brandId_idx" ON "Campaign"("organizationId", "brandId")`,
+  `CREATE INDEX IF NOT EXISTS "Campaign_organizationId_status_idx" ON "Campaign"("organizationId", "status")`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "BrandSite_brandId_slug_key" ON "BrandSite"("brandId", "slug")`,
+  `CREATE INDEX IF NOT EXISTS "BrandSite_organizationId_brandId_idx" ON "BrandSite"("organizationId", "brandId")`,
+  `CREATE INDEX IF NOT EXISTS "BrandSite_organizationId_status_idx" ON "BrandSite"("organizationId", "status")`,
+  `CREATE INDEX IF NOT EXISTS "Lead_organizationId_campaignId_idx" ON "Lead"("organizationId", "campaignId")`,
+];
+
+export const UPGRADE_ALTERS = [
+  { table: "CatalogProduct", column: "priceSource", sql: `ALTER TABLE "CatalogProduct" ADD COLUMN "priceSource" TEXT NOT NULL DEFAULT 'OWN_LIST'` },
+  { table: "CatalogProduct", column: "supplierCode", sql: `ALTER TABLE "CatalogProduct" ADD COLUMN "supplierCode" TEXT` },
+  { table: "CatalogProduct", column: "supplierRef", sql: `ALTER TABLE "CatalogProduct" ADD COLUMN "supplierRef" TEXT` },
+  { table: "Quote", column: "leadId", sql: `ALTER TABLE "Quote" ADD COLUMN "leadId" TEXT` },
+  { table: "Quote", column: "pipelineStage", sql: `ALTER TABLE "Quote" ADD COLUMN "pipelineStage" TEXT NOT NULL DEFAULT 'QUOTING'` },
+  { table: "Quote", column: "paxCount", sql: `ALTER TABLE "Quote" ADD COLUMN "paxCount" INTEGER NOT NULL DEFAULT 2` },
+  { table: "Quote", column: "departureDate", sql: `ALTER TABLE "Quote" ADD COLUMN "departureDate" DATETIME` },
+  { table: "Quote", column: "returnDate", sql: `ALTER TABLE "Quote" ADD COLUMN "returnDate" DATETIME` },
+  { table: "Quote", column: "totalCost", sql: `ALTER TABLE "Quote" ADD COLUMN "totalCost" REAL NOT NULL DEFAULT 0` },
+  { table: "Quote", column: "marginPct", sql: `ALTER TABLE "Quote" ADD COLUMN "marginPct" REAL NOT NULL DEFAULT 0` },
+  { table: "Quote", column: "hypothesisNote", sql: `ALTER TABLE "Quote" ADD COLUMN "hypothesisNote" TEXT` },
+  { table: "QuoteLine", column: "netCost", sql: `ALTER TABLE "QuoteLine" ADD COLUMN "netCost" REAL NOT NULL DEFAULT 0` },
+  { table: "QuoteLine", column: "priceSource", sql: `ALTER TABLE "QuoteLine" ADD COLUMN "priceSource" TEXT NOT NULL DEFAULT 'OWN_LIST'` },
+  { table: "QuoteLine", column: "supplierCode", sql: `ALTER TABLE "QuoteLine" ADD COLUMN "supplierCode" TEXT` },
+  { table: "QuoteLine", column: "supplierRef", sql: `ALTER TABLE "QuoteLine" ADD COLUMN "supplierRef" TEXT` },
+  { table: "QuoteLine", column: "updatedAt", sql: `ALTER TABLE "QuoteLine" ADD COLUMN "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP` },
+  { table: "Lead", column: "intakeStatus", sql: `ALTER TABLE "Lead" ADD COLUMN "intakeStatus" TEXT NOT NULL DEFAULT 'RAW'` },
+  { table: "Lead", column: "departureHint", sql: `ALTER TABLE "Lead" ADD COLUMN "departureHint" TEXT` },
+  { table: "Lead", column: "durationDays", sql: `ALTER TABLE "Lead" ADD COLUMN "durationDays" INTEGER` },
+  { table: "Lead", column: "destinationsJson", sql: `ALTER TABLE "Lead" ADD COLUMN "destinationsJson" TEXT` },
+  { table: "Lead", column: "rawSourceText", sql: `ALTER TABLE "Lead" ADD COLUMN "rawSourceText" TEXT` },
+  { table: "Lead", column: "missingFieldsJson", sql: `ALTER TABLE "Lead" ADD COLUMN "missingFieldsJson" TEXT` },
+  { table: "Lead", column: "draftReply", sql: `ALTER TABLE "Lead" ADD COLUMN "draftReply" TEXT` },
+  { table: "Lead", column: "parsedJson", sql: `ALTER TABLE "Lead" ADD COLUMN "parsedJson" TEXT` },
+  { table: "Lead", column: "clientType", sql: `ALTER TABLE "Lead" ADD COLUMN "clientType" TEXT NOT NULL DEFAULT 'B2C'` },
+  { table: "Lead", column: "pipelineName", sql: `ALTER TABLE "Lead" ADD COLUMN "pipelineName" TEXT` },
+  { table: "Customer", column: "clientType", sql: `ALTER TABLE "Customer" ADD COLUMN "clientType" TEXT NOT NULL DEFAULT 'B2C'` },
+  { table: "Customer", column: "preferredBrandId", sql: `ALTER TABLE "Customer" ADD COLUMN "preferredBrandId" TEXT` },
+  { table: "Lead", column: "campaignId", sql: `ALTER TABLE "Lead" ADD COLUMN "campaignId" TEXT` },
+  { table: "Brand", column: "status", sql: `ALTER TABLE "Brand" ADD COLUMN "status" TEXT NOT NULL DEFAULT 'ACTIVE'` },
+  { table: "Brand", column: "tagline", sql: `ALTER TABLE "Brand" ADD COLUMN "tagline" TEXT` },
+  { table: "Brand", column: "secondaryColor", sql: `ALTER TABLE "Brand" ADD COLUMN "secondaryColor" TEXT NOT NULL DEFAULT '#B33A2B'` },
+  { table: "Brand", column: "logoUrl", sql: `ALTER TABLE "Brand" ADD COLUMN "logoUrl" TEXT` },
+  { table: "Brand", column: "domain", sql: `ALTER TABLE "Brand" ADD COLUMN "domain" TEXT` },
+  { table: "Brand", column: "seoTitle", sql: `ALTER TABLE "Brand" ADD COLUMN "seoTitle" TEXT` },
+  { table: "Brand", column: "seoDescription", sql: `ALTER TABLE "Brand" ADD COLUMN "seoDescription" TEXT` },
+  { table: "Brand", column: "socialJson", sql: `ALTER TABLE "Brand" ADD COLUMN "socialJson" TEXT` },
+  { table: "Brand", column: "notes", sql: `ALTER TABLE "Brand" ADD COLUMN "notes" TEXT` },
+];

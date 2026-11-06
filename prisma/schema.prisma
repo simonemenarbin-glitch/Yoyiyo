@@ -1,0 +1,660 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  OPERATOR
+  AGENT
+  READONLY
+}
+
+enum ProductType {
+  HOTEL
+  FLIGHT
+  TRANSFER
+  EXCURSION
+  CRUISE
+  FERRY
+  INSURANCE
+  PACKAGE
+  OTHER
+}
+
+enum PracticeStatus {
+  DRAFT
+  QUOTED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum SalesChannel {
+  WEB
+  B2B
+  COUNTER
+  LANDING
+  WHATSAPP
+  EMAIL
+  INSTAGRAM
+  FACEBOOK
+}
+
+enum LeadSource {
+  WHATSAPP
+  EMAIL
+  INSTAGRAM
+  FACEBOOK
+  WEB
+  PHONE
+  REFERRAL
+  OTHER
+}
+
+enum PipelineStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  QUOTING
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum PriceSource {
+  OWN_LIST
+  SUPPLIER_API
+  MANUAL
+}
+
+enum IntakeStatus {
+  RAW
+  PARSED
+  READY_TO_QUOTE
+  QUOTED
+  NEEDS_INFO
+}
+
+enum ChannelKind {
+  IMAP
+  WHATSAPP_CLOUD
+  META_INSTAGRAM
+  META_FACEBOOK
+  WEB_FORM
+  MANUAL_QUEUE
+}
+
+enum IngestStatus {
+  FETCHED
+  PROCESSED
+  SKIPPED
+  ERROR
+}
+
+enum MessageDirection {
+  IN
+  OUT
+}
+
+enum MessageSendStatus {
+  DRAFT
+  QUEUED
+  SENT
+  FAILED
+  LOGGED
+}
+
+enum ClientType {
+  B2C
+  B2B
+  GROUP
+  OTHER
+}
+
+enum BrandStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum CampaignChannel {
+  EMAIL
+  SOCIAL
+  ADS
+  LANDING
+  WHATSAPP
+  SEO
+  PARTNER
+  OTHER
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  LIVE
+  PAUSED
+  ENDED
+}
+
+enum SitePageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SitePageType {
+  HOME
+  LANDING
+  CATALOG
+  FORM
+  CONTENT
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  vatNumber String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brands       Brand[]
+  memberships  Membership[]
+  customers    Customer[]
+  partners     AgencyPartner[]
+  products     CatalogProduct[]
+  practices    Practice[]
+  quotes       Quote[]
+  leads        Lead[]
+  auditLogs    AuditLog[]
+  channels     ChannelConnection[]
+  ingestions   IngestedMessage[]
+  messages     ConversationMessage[]
+  campaigns    Campaign[]
+  sites        BrandSite[]
+}
+
+model ChannelConnection {
+  id             String      @id @default(cuid())
+  organizationId String
+  label          String
+  source         LeadSource
+  kind           ChannelKind
+  enabled        Boolean     @default(true)
+  host           String?
+  port           Int?
+  username       String?
+  secret         String?
+  mailbox        String?     @default("INBOX")
+  lookbackDays   Int         @default(3)
+  configJson     String?
+  lastSyncAt     DateTime?
+  lastError      String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages     IngestedMessage[]
+  threadMsgs   ConversationMessage[]
+
+  @@index([organizationId, enabled])
+  @@unique([organizationId, label])
+}
+
+model ConversationMessage {
+  id             String            @id @default(cuid())
+  organizationId String
+  leadId         String
+  connectionId   String?
+  userId         String?
+  direction      MessageDirection
+  source         LeadSource
+  channelKind    ChannelKind?
+  status         MessageSendStatus @default(LOGGED)
+  toAddress      String?
+  fromAddress    String?
+  subject        String?
+  body           String
+  providerId     String?
+  errorText      String?
+  ingestedId     String?
+  sentAt         DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  connection   ChannelConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+  @@index([organizationId, direction])
+}
+
+model IngestedMessage {
+  id             String       @id @default(cuid())
+  organizationId String
+  connectionId   String?
+  source         LeadSource
+  externalId     String
+  fingerprint    String
+  fromName       String?
+  fromAddress    String?
+  subject        String?
+  receivedAt     DateTime?
+  rawText        String
+  status         IngestStatus @default(FETCHED)
+  leadId         String?
+  quoteId        String?
+  errorText      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  connection   ChannelConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  lead         Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, fingerprint])
+  @@index([organizationId, status])
+  @@index([organizationId, source])
+}
+
+model Brand {
+  id              String      @id @default(cuid())
+  organizationId  String
+  name            String
+  slug            String
+  status          BrandStatus @default(ACTIVE)
+  tagline         String?
+  primaryColor    String      @default("#0F3D3E")
+  secondaryColor  String      @default("#B33A2B")
+  logoUrl         String?
+  domain          String?
+  websiteUrl      String?
+  seoTitle        String?
+  seoDescription  String?
+  socialJson      String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  practices    Practice[]
+  quotes       Quote[]
+  leads        Lead[]
+  customers    Customer[]   @relation("CustomerPreferredBrand")
+  campaigns    Campaign[]
+  sites        BrandSite[]
+
+  @@unique([organizationId, slug])
+}
+
+model Campaign {
+  id             String          @id @default(cuid())
+  organizationId String
+  brandId        String
+  name           String
+  channel        CampaignChannel @default(LANDING)
+  status         CampaignStatus  @default(DRAFT)
+  goal           String?
+  utmCampaign    String?
+  utmSource      String?
+  utmMedium      String?
+  budget         Float           @default(0)
+  spend          Float           @default(0)
+  impressions    Int             @default(0)
+  clicks         Int             @default(0)
+  leadsCount     Int             @default(0)
+  revenueAttributed Float        @default(0)
+  startAt        DateTime?
+  endAt          DateTime?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  leads        Lead[]
+  sites        BrandSite[]
+
+  @@index([organizationId, brandId])
+  @@index([organizationId, status])
+}
+
+model BrandSite {
+  id             String         @id @default(cuid())
+  organizationId String
+  brandId        String
+  campaignId     String?
+  name           String
+  slug           String
+  pageType       SitePageType   @default(LANDING)
+  status         SitePageStatus @default(DRAFT)
+  title          String
+  subtitle       String?
+  ctaLabel       String?        @default("Richiedi preventivo")
+  ctaHref        String?
+  heroImageUrl   String?
+  blocksJson     String?
+  customCss      String?
+  views          Int            @default(0)
+  formSubmits    Int            @default(0)
+  publishedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  campaign     Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@unique([brandId, slug])
+  @@index([organizationId, brandId])
+  @@index([organizationId, status])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships Membership[]
+  sessions    Session[]
+  auditLogs   AuditLog[]
+  leads       Lead[]                 @relation("LeadAssignee")
+  messages    ConversationMessage[]
+}
+
+model Membership {
+  id             String         @id @default(cuid())
+  organizationId String
+  userId         String
+  role           MembershipRole @default(OPERATOR)
+  createdAt      DateTime       @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id             String     @id @default(cuid())
+  organizationId String
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  clientType     ClientType @default(B2C)
+  preferredBrandId String?
+  notes          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  preferredBrand Brand?       @relation("CustomerPreferredBrand", fields: [preferredBrandId], references: [id])
+  practices      Practice[]
+  quotes         Quote[]
+  leads          Lead[]
+
+  @@index([organizationId, clientType])
+}
+
+model AgencyPartner {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  email          String?
+  phone          String?
+  commissionPct  Float    @default(10)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  practices    Practice[]
+  quotes       Quote[]
+  leads        Lead[]
+}
+
+model Lead {
+  id               String        @id @default(cuid())
+  organizationId   String
+  brandId          String?
+  campaignId       String?
+  customerId       String?
+  partnerId        String?
+  assigneeUserId   String?
+  firstName        String
+  lastName         String
+  email            String?
+  phone            String?
+  clientType       ClientType    @default(B2C)
+  pipelineName     String?
+  source           LeadSource    @default(OTHER)
+  sourceDetail     String?
+  pipelineStage    PipelineStage @default(NEW)
+  intakeStatus     IntakeStatus  @default(RAW)
+  interest         String?
+  paxCount         Int           @default(2)
+  budgetHint       Float?
+  departureHint    String?
+  durationDays     Int?
+  destinationsJson String?
+  rawSourceText    String?
+  missingFieldsJson String?
+  draftReply       String?
+  parsedJson       String?
+  notes            String?
+  lastActivityAt   DateTime      @default(now())
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?         @relation(fields: [brandId], references: [id])
+  campaign     Campaign?      @relation(fields: [campaignId], references: [id])
+  customer     Customer?      @relation(fields: [customerId], references: [id])
+  partner      AgencyPartner? @relation(fields: [partnerId], references: [id])
+  assignee     User?             @relation("LeadAssignee", fields: [assigneeUserId], references: [id])
+  quotes       Quote[]
+  ingestions   IngestedMessage[]
+  messages     ConversationMessage[]
+
+  @@index([organizationId, pipelineStage])
+  @@index([organizationId, source])
+  @@index([organizationId, intakeStatus])
+  @@index([organizationId, clientType])
+  @@index([organizationId, brandId])
+  @@index([organizationId, customerId])
+  @@index([organizationId, campaignId])
+}
+
+model CatalogProduct {
+  id             String      @id @default(cuid())
+  organizationId String
+  type           ProductType
+  name           String
+  code           String?
+  city           String?
+  country        String?
+  description    String?
+  active         Boolean     @default(true)
+  priceSource    PriceSource @default(OWN_LIST)
+  supplierCode   String?
+  supplierRef    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ratePlans     RatePlan[]
+  practiceLines PracticeLine[]
+  quoteLines    QuoteLine[]
+
+  @@index([organizationId, type])
+}
+
+model RatePlan {
+  id                 String    @id @default(cuid())
+  productId          String
+  name               String
+  currency           String    @default("EUR")
+  netCost            Float
+  sellPrice          Float
+  validFrom          DateTime?
+  validTo            DateTime?
+  cancellationPolicy String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  product CatalogProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Practice {
+  id             String         @id @default(cuid())
+  organizationId String
+  brandId        String?
+  customerId     String?
+  partnerId      String?
+  reference      String
+  title          String
+  status         PracticeStatus @default(DRAFT)
+  channel        SalesChannel   @default(COUNTER)
+  departureDate  DateTime?
+  returnDate     DateTime?
+  paxCount       Int            @default(1)
+  currency       String         @default("EUR")
+  totalSell      Float          @default(0)
+  totalCost      Float          @default(0)
+  marginPct      Float          @default(0)
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?         @relation(fields: [brandId], references: [id])
+  customer     Customer?      @relation(fields: [customerId], references: [id])
+  partner      AgencyPartner? @relation(fields: [partnerId], references: [id])
+  lines        PracticeLine[]
+  quotes       Quote[]
+
+  @@unique([organizationId, reference])
+  @@index([organizationId, status])
+}
+
+model PracticeLine {
+  id          String      @id @default(cuid())
+  practiceId  String
+  productId   String?
+  serviceType ProductType @default(OTHER)
+  title       String
+  quantity    Int         @default(1)
+  netCost     Float       @default(0)
+  sellPrice   Float       @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String      @default("OPEN")
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  practice Practice        @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  product  CatalogProduct? @relation(fields: [productId], references: [id])
+}
+
+model Quote {
+  id             String        @id @default(cuid())
+  organizationId String
+  brandId        String?
+  practiceId     String?
+  customerId     String?
+  partnerId      String?
+  leadId         String?
+  number         String
+  title          String
+  status         QuoteStatus   @default(DRAFT)
+  channel        SalesChannel  @default(B2B)
+  pipelineStage  PipelineStage @default(QUOTING)
+  currency       String        @default("EUR")
+  paxCount       Int           @default(2)
+  departureDate  DateTime?
+  returnDate     DateTime?
+  totalSell      Float         @default(0)
+  totalCost      Float         @default(0)
+  marginPct      Float         @default(0)
+  validUntil     DateTime?
+  notes          String?
+  hypothesisNote String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?         @relation(fields: [brandId], references: [id])
+  practice     Practice?      @relation(fields: [practiceId], references: [id])
+  customer     Customer?      @relation(fields: [customerId], references: [id])
+  partner      AgencyPartner? @relation(fields: [partnerId], references: [id])
+  lead         Lead?          @relation(fields: [leadId], references: [id])
+  lines        QuoteLine[]
+
+  @@unique([organizationId, number])
+  @@index([organizationId, pipelineStage])
+}
+
+model QuoteLine {
+  id           String      @id @default(cuid())
+  quoteId      String
+  productId    String?
+  serviceType  ProductType @default(OTHER)
+  title        String
+  quantity     Int         @default(1)
+  netCost      Float       @default(0)
+  unitPrice    Float       @default(0)
+  priceSource  PriceSource @default(OWN_LIST)
+  supplierCode String?
+  supplierRef  String?
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  quote   Quote           @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  product CatalogProduct? @relation(fields: [productId], references: [id])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  action         String
+  entityType     String
+  entityId       String?
+  metaJson       String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id])
+}

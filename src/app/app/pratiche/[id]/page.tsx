@@ -152,7 +152,41 @@ export default async function PracticeDetailPage({
               className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
             />
           </label>
-          <label className="flex items-end gap-2 text-sm md:pb-2">
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Partenza</span>
+            <input
+              name="departureDate"
+              type="date"
+              defaultValue={
+                practice.departureDate
+                  ? practice.departureDate.toISOString().slice(0, 10)
+                  : ""
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Rientro</span>
+            <input
+              name="returnDate"
+              type="date"
+              defaultValue={
+                practice.returnDate ? practice.returnDate.toISOString().slice(0, 10) : ""
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Release voli (gg)</span>
+            <input
+              name="releaseDays"
+              type="number"
+              min={1}
+              defaultValue={practice.releaseDays || 120}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          </label>
+          <label className="flex items-end gap-2 text-sm md:col-span-2 md:pb-2">
             <input
               type="checkbox"
               name="groupageOver20"

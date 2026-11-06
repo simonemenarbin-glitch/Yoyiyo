@@ -44,14 +44,22 @@ export default async function PracticeDocumentPage({
             {doc.type} · generato {shortDate(doc.generatedAt)} · v{doc.version}
           </p>
         </div>
-        <a
-          href={`/app/pratiche/${practice.id}/documenti/${doc.id}/print`}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-medium text-white"
-        >
-          Apri / stampa
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`/app/pratiche/${practice.id}/documenti/${doc.id}/print`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-medium text-white"
+          >
+            Apri / stampa
+          </a>
+          <a
+            href={`/app/pratiche/${practice.id}/documenti/${doc.id}/download`}
+            className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]"
+          >
+            Scarica Word (.doc)
+          </a>
+        </div>
       </div>
       <iframe
         title={doc.title}

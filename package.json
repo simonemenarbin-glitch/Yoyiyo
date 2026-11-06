@@ -13,7 +13,8 @@
     "test:catalog": "node scripts/test_catalog_contracts.mjs",
     "test:suppliers": "tsx scripts/test_supplier_sandbox.ts",
     "test:b2b": "node scripts/test_b2b_pricing.mjs",
-    "test:reporting": "node scripts/test_reporting.mjs"
+    "test:reporting": "node scripts/test_reporting.mjs",
+    "test:74ter": "node scripts/test_74ter.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

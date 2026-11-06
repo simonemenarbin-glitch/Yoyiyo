@@ -786,6 +786,36 @@ export const UPGRADE_SQL = [
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS "FiscalDocument" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "practiceId" TEXT,
+    "customerId" TEXT,
+    "partnerId" TEXT,
+    "kind" TEXT NOT NULL DEFAULT 'FATTURA_74TER',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "number" TEXT NOT NULL,
+    "issueDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "customerName" TEXT NOT NULL,
+    "customerVat" TEXT,
+    "customerFiscalCode" TEXT,
+    "customerAddress" TEXT,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "totalSell" REAL NOT NULL DEFAULT 0,
+    "totalCost" REAL NOT NULL DEFAULT 0,
+    "marginBase" REAL NOT NULL DEFAULT 0,
+    "vatRate" REAL NOT NULL DEFAULT 22,
+    "vatAmount" REAL NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "linesJson" TEXT,
+    "sdiStatus" TEXT NOT NULL DEFAULT 'NOT_SENT',
+    "sdiMessageId" TEXT,
+    "sdiSentAt" DATETIME,
+    "sdiResponseJson" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "FiscalDocument_organizationId_number_key" ON "FiscalDocument"("organizationId", "number")`,
 ];
 
 // Extra alters appended below for AgencyPartner portal fields.

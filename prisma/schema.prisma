@@ -260,6 +260,30 @@ enum CashDeadlineStatus {
   WAIVED
 }
 
+enum FiscalDocKind {
+  FATTURA_74TER
+  NOTA_CREDITO_74TER
+  AUTOFATTURA
+  RICEVUTA
+}
+
+enum FiscalDocStatus {
+  DRAFT
+  ISSUED
+  SENT_SDI_STUB
+  ACCEPTED_STUB
+  REJECTED_STUB
+  CANCELLED
+}
+
+enum SdiStubStatus {
+  NOT_SENT
+  QUEUED
+  SENT
+  DELIVERED
+  REJECTED
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -288,7 +312,8 @@ model Organization {
   suppliers       SupplierConnector[]
   publicRequests  PublicQuoteRequest[]
   guestCheckouts  GuestCheckout[]
-  cashDeadlines   CashDeadline[]
+  cashDeadlines     CashDeadline[]
+  fiscalDocuments   FiscalDocument[]
 }
 
 model SupplierConnector {
@@ -875,10 +900,52 @@ model Practice {
   quotes       Quote[]
   changes      PracticeChange[]
   documents    PracticeDocument[]
-  cashDeadlines CashDeadline[]
+  cashDeadlines   CashDeadline[]
+  fiscalDocuments FiscalDocument[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])
+}
+
+/// Fattura / documento in regime IVA 74-ter (margine). SDI è stub offline.
+model FiscalDocument {
+  id                   String          @id @default(cuid())
+  organizationId       String
+  practiceId           String?
+  customerId           String?
+  partnerId            String?
+  kind                 FiscalDocKind   @default(FATTURA_74TER)
+  status               FiscalDocStatus @default(DRAFT)
+  number               String
+  issueDate            DateTime        @default(now())
+  customerName         String
+  customerVat          String?
+  customerFiscalCode   String?
+  customerAddress      String?
+  currency             String          @default("EUR")
+  /// Corrispettivo lordo cliente.
+  totalSell            Float           @default(0)
+  /// Costi servizi viaggio (base per margine).
+  totalCost            Float           @default(0)
+  /// Base imponibile 74-ter = max(0, sell - cost).
+  marginBase           Float           @default(0)
+  vatRate              Float           @default(22)
+  vatAmount            Float           @default(0)
+  notes                String?
+  linesJson            String?
+  sdiStatus            SdiStubStatus   @default(NOT_SENT)
+  sdiMessageId         String?
+  sdiSentAt            DateTime?
+  sdiResponseJson      String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  practice     Practice?    @relation(fields: [practiceId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, number])
+  @@index([organizationId, status])
+  @@index([practiceId])
 }
 
 model CashDeadline {

@@ -729,6 +729,48 @@ export const UPGRADE_SQL = [
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS "PublicQuoteRequest" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "siteId" TEXT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" TEXT,
+    "paxCount" INTEGER NOT NULL DEFAULT 2,
+    "departureHint" TEXT,
+    "destinations" TEXT,
+    "message" TEXT,
+    "budgetHint" REAL,
+    "status" TEXT NOT NULL DEFAULT 'NEW',
+    "leadId" TEXT,
+    "quoteId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "GuestCheckout" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "quoteId" TEXT,
+    "practiceId" TEXT,
+    "publicRequestId" TEXT,
+    "token" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "guestEmail" TEXT NOT NULL,
+    "guestName" TEXT NOT NULL,
+    "paxCount" INTEGER NOT NULL DEFAULT 2,
+    "totalSell" REAL NOT NULL DEFAULT 0,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "paymentRef" TEXT,
+    "paidAt" DATETIME,
+    "expiresAt" DATETIME,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "GuestCheckout_token_key" ON "GuestCheckout"("token")`,
 ];
 
 // Extra alters appended below for AgencyPartner portal fields.

@@ -310,6 +310,27 @@ export async function submitBrandSiteLead(formData: FormData) {
     },
   });
 
+  try {
+    await prisma.publicQuoteRequest.create({
+      data: {
+        organizationId: brand.organizationId,
+        brandId: brand.id,
+        siteId: site.id,
+        firstName,
+        lastName,
+        email: email || `${firstName.toLowerCase()}@guest.local`,
+        phone,
+        paxCount,
+        departureHint: periodo || null,
+        message: messaggio || null,
+        status: "NEW",
+        leadId: lead.id,
+      },
+    });
+  } catch {
+    // Table may not exist yet on older deploys mid-migrate
+  }
+
   await prisma.brandSite.update({
     where: { id: site.id },
     data: { formSubmits: { increment: 1 } },

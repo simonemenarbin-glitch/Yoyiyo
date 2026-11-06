@@ -22,6 +22,8 @@ async function main() {
   await prisma.lead.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
+  await prisma.guestCheckout.deleteMany().catch(() => undefined);
+  await prisma.publicQuoteRequest.deleteMany().catch(() => undefined);
   await prisma.partnerPriceLine.deleteMany().catch(() => undefined);
   await prisma.partnerPriceList.deleteMany().catch(() => undefined);
   await prisma.rateSupplement.deleteMany();

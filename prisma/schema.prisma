@@ -229,6 +229,22 @@ enum PartnerNetKind {
   WHITE_LABEL
 }
 
+enum PublicRequestStatus {
+  NEW
+  IN_REVIEW
+  QUOTED
+  CHECKED_OUT
+  CLOSED
+}
+
+enum GuestCheckoutStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID_DEMO
+  CANCELLED
+  EXPIRED
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -241,20 +257,22 @@ model Organization {
   memberships  Membership[]
   customers    Customer[]
   partners     AgencyPartner[]
-  partnerNets  PartnerNet[]
-  priceLists   PartnerPriceList[]
-  products     CatalogProduct[]
-  policies     ContractPolicy[]
-  practices    Practice[]
-  quotes       Quote[]
-  leads        Lead[]
-  auditLogs    AuditLog[]
-  channels     ChannelConnection[]
-  ingestions   IngestedMessage[]
-  messages     ConversationMessage[]
-  campaigns    Campaign[]
-  sites        BrandSite[]
-  suppliers    SupplierConnector[]
+  partnerNets     PartnerNet[]
+  priceLists      PartnerPriceList[]
+  products        CatalogProduct[]
+  policies        ContractPolicy[]
+  practices       Practice[]
+  quotes          Quote[]
+  leads           Lead[]
+  auditLogs       AuditLog[]
+  channels        ChannelConnection[]
+  ingestions      IngestedMessage[]
+  messages        ConversationMessage[]
+  campaigns       Campaign[]
+  sites           BrandSite[]
+  suppliers       SupplierConnector[]
+  publicRequests  PublicQuoteRequest[]
+  guestCheckouts  GuestCheckout[]
 }
 
 model SupplierConnector {
@@ -384,12 +402,14 @@ model Brand {
   updatedAt       DateTime    @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  practices    Practice[]
-  quotes       Quote[]
-  leads        Lead[]
-  customers    Customer[]   @relation("CustomerPreferredBrand")
-  campaigns    Campaign[]
-  sites        BrandSite[]
+  practices       Practice[]
+  quotes          Quote[]
+  leads           Lead[]
+  customers       Customer[]   @relation("CustomerPreferredBrand")
+  campaigns       Campaign[]
+  sites           BrandSite[]
+  publicRequests  PublicQuoteRequest[]
+  guestCheckouts  GuestCheckout[]
 
   @@unique([organizationId, slug])
 }
@@ -973,4 +993,64 @@ model AuditLog {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user         User?        @relation(fields: [userId], references: [id])
+}
+
+/// Public multi-channel quote request (landing / guest / form).
+model PublicQuoteRequest {
+  id             String              @id @default(cuid())
+  organizationId String
+  brandId        String?
+  siteId         String?
+  firstName      String
+  lastName       String
+  email          String
+  phone          String?
+  paxCount       Int                 @default(2)
+  departureHint  String?
+  destinations   String?
+  message        String?
+  budgetHint     Float?
+  status         PublicRequestStatus @default(NEW)
+  leadId         String?
+  quoteId        String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?          @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  checkouts    GuestCheckout[]
+
+  @@index([organizationId, status])
+  @@index([brandId])
+}
+
+/// Guest checkout session (demo payment — no PSP keys in repo).
+model GuestCheckout {
+  id               String              @id @default(cuid())
+  organizationId   String
+  brandId          String?
+  quoteId          String?
+  practiceId       String?
+  publicRequestId  String?
+  token            String              @unique
+  status           GuestCheckoutStatus @default(DRAFT)
+  guestEmail       String
+  guestName        String
+  paxCount         Int                 @default(2)
+  totalSell        Float               @default(0)
+  currency         String              @default("EUR")
+  /// Demo payment reference only — never a real card token.
+  paymentRef       String?
+  paidAt           DateTime?
+  expiresAt        DateTime?
+  notes            String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  organization  Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand         Brand?             @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  publicRequest PublicQuoteRequest? @relation(fields: [publicRequestId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, status])
+  @@index([quoteId])
 }

@@ -688,7 +688,50 @@ export const UPGRADE_SQL = [
   )`,
   `CREATE INDEX IF NOT EXISTS "ContractPolicy_organizationId_kind_idx" ON "ContractPolicy"("organizationId", "kind")`,
   `CREATE INDEX IF NOT EXISTS "ContractPolicy_productId_idx" ON "ContractPolicy"("productId")`,
+  `CREATE TABLE IF NOT EXISTS "PartnerNet" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'STANDARD',
+    "defaultMarkupPct" REAL NOT NULL DEFAULT 10,
+    "defaultCommissionPct" REAL NOT NULL DEFAULT 10,
+    "active" INTEGER NOT NULL DEFAULT 1,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "PartnerNet_organizationId_code_key" ON "PartnerNet"("organizationId", "code")`,
+  `CREATE TABLE IF NOT EXISTS "PartnerPriceList" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "netId" TEXT,
+    "partnerId" TEXT,
+    "name" TEXT NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'EUR',
+    "validFrom" DATETIME,
+    "validTo" DATETIME,
+    "active" INTEGER NOT NULL DEFAULT 1,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS "PartnerPriceLine" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "priceListId" TEXT NOT NULL,
+    "productId" TEXT,
+    "serviceType" TEXT NOT NULL DEFAULT 'OTHER',
+    "title" TEXT NOT NULL,
+    "netCost" REAL NOT NULL DEFAULT 0,
+    "agencyNet" REAL NOT NULL DEFAULT 0,
+    "suggestedSell" REAL NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
 ];
+
+// Extra alters appended below for AgencyPartner portal fields.
 
 export const UPGRADE_ALTERS = [
   { table: "CatalogProduct", column: "priceSource", sql: `ALTER TABLE "CatalogProduct" ADD COLUMN "priceSource" TEXT NOT NULL DEFAULT 'OWN_LIST'` },
@@ -734,4 +777,10 @@ export const UPGRADE_ALTERS = [
   { table: "Practice", column: "depositAmount", sql: `ALTER TABLE "Practice" ADD COLUMN "depositAmount" REAL NOT NULL DEFAULT 0` },
   { table: "Practice", column: "releaseDays", sql: `ALTER TABLE "Practice" ADD COLUMN "releaseDays" INTEGER NOT NULL DEFAULT 120` },
   { table: "Practice", column: "confirmedAt", sql: `ALTER TABLE "Practice" ADD COLUMN "confirmedAt" DATETIME` },
+  { table: "AgencyPartner", column: "netId", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "netId" TEXT` },
+  { table: "AgencyPartner", column: "contactName", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "contactName" TEXT` },
+  { table: "AgencyPartner", column: "city", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "city" TEXT` },
+  { table: "AgencyPartner", column: "vatNumber", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "vatNumber" TEXT` },
+  { table: "AgencyPartner", column: "portalToken", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "portalToken" TEXT` },
+  { table: "AgencyPartner", column: "portalEnabled", sql: `ALTER TABLE "AgencyPartner" ADD COLUMN "portalEnabled" BOOLEAN NOT NULL DEFAULT false` },
 ];

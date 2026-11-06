@@ -7,6 +7,7 @@ import type {
   IntakeStatus,
   LeadSource,
   MembershipRole,
+  PartnerNetKind,
   PipelineStage,
   PolicyKind,
   PracticeStatus,
@@ -215,4 +216,11 @@ export const policyKindLabel: Record<PolicyKind, string> = {
   PAYMENT: "Pagamento",
   RELEASE: "Release",
   GENERAL: "Generale",
+};
+
+export const partnerNetKindLabel: Record<PartnerNetKind, string> = {
+  STANDARD: "Standard",
+  PREFERRED: "Preferred",
+  PROMOTER: "Promoter",
+  WHITE_LABEL: "White-label",
 };

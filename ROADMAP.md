@@ -51,11 +51,17 @@
 - [x] UI `/app/fornitori` sandbox tester
 - [x] Default connectors READY in sandbox (no live keys)
 
+## Fase 0.9 — Network B2B (fatto)
+
+- [x] PartnerNet (STANDARD / PREFERRED / PROMOTER / WHITE_LABEL)
+- [x] Listini differenziati (agencyNet + suggestedSell)
+- [x] Portale promoter `/p/[token]`
+
 ## Fase 1 — Vendita completa
 
 - [ ] Storefront multi-brand
 - [ ] Checkout guest + richiesta preventivo
-- [ ] Listini agenzia partner
+- [x] Listini agenzia partner
 - [ ] Documenti automatici (voucher / conferma)
 - [ ] Credenziali live connettori API (Travio/Hotelston/…) al posto del sandbox
 

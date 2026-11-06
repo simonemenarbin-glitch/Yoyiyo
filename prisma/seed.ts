@@ -22,6 +22,7 @@ async function main() {
   await prisma.lead.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
+  await prisma.cashDeadline.deleteMany().catch(() => undefined);
   await prisma.guestCheckout.deleteMany().catch(() => undefined);
   await prisma.publicQuoteRequest.deleteMany().catch(() => undefined);
   await prisma.partnerPriceLine.deleteMany().catch(() => undefined);
@@ -847,6 +848,95 @@ async function main() {
   await prisma.campaign.update({
     where: { id: yoyiyoCampaign.id },
     data: { leadsCount: 1, revenueAttributed: 0 },
+  });
+
+  const groupPractice = await prisma.practice.create({
+    data: {
+      organizationId: org.id,
+      brandId: cigBrand.id,
+      customerId: customerGroup.id,
+      partnerId: partner.id,
+      reference: "PRA-2026-G042",
+      title: "Groupage Guilin Yangshuo 8gg",
+      status: "CONFIRMED",
+      channel: "B2B",
+      departureDate: new Date("2027-03-15"),
+      returnDate: new Date("2027-03-22"),
+      paxCount: 22,
+      groupageOver20: true,
+      depositPct: 10,
+      depositAmount: 880,
+      releaseDays: 120,
+      confirmedAt: new Date("2026-10-01"),
+      totalSell: 8800,
+      totalCost: 7040,
+      marginPct: ((8800 - 7040) / 8800) * 100,
+      notes: "Demo groupage >20 per reporting + penali",
+      lines: {
+        create: [
+          {
+            serviceType: ProductType.PACKAGE,
+            title: "Land Guilin Yangshuo 8gg x22",
+            quantity: 22,
+            netCost: 7040,
+            sellPrice: 8800,
+            status: "CONFIRMED",
+          },
+        ],
+      },
+    },
+  });
+
+  await prisma.cashDeadline.createMany({
+    data: [
+      {
+        organizationId: org.id,
+        practiceId: practice.id,
+        kind: "DEPOSIT",
+        label: `Acconto ${practice.reference}`,
+        dueDate: new Date("2026-08-01"),
+        amount: 136,
+        status: "OPEN",
+      },
+      {
+        organizationId: org.id,
+        practiceId: practice.id,
+        kind: "BALANCE",
+        label: `Saldo ${practice.reference}`,
+        dueDate: new Date("2026-08-20"),
+        amount: 318,
+        status: "OPEN",
+      },
+      {
+        organizationId: org.id,
+        practiceId: groupPractice.id,
+        kind: "DEPOSIT",
+        label: `Acconto groupage ${groupPractice.reference}`,
+        dueDate: new Date("2026-11-15"),
+        amount: 880,
+        status: "OPEN",
+        notes: "10% rimborsabile fino a release 120gg",
+      },
+      {
+        organizationId: org.id,
+        practiceId: groupPractice.id,
+        kind: "BALANCE",
+        label: `Saldo ${groupPractice.reference}`,
+        dueDate: new Date("2027-01-29"),
+        amount: 7920,
+        status: "OPEN",
+      },
+      {
+        organizationId: org.id,
+        practiceId: groupPractice.id,
+        kind: "SUPPLIER_PAY",
+        label: `Pagamento DMC ${groupPractice.reference}`,
+        dueDate: new Date("2027-02-22"),
+        amount: 6160,
+        status: "OPEN",
+        notes: "Uscita cassa fornitori",
+      },
+    ],
   });
 
   const priceList = await prisma.partnerPriceList.create({

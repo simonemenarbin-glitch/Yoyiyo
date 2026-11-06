@@ -12,7 +12,8 @@
     "db:reset": "prisma migrate reset --force",
     "test:catalog": "node scripts/test_catalog_contracts.mjs",
     "test:suppliers": "tsx scripts/test_supplier_sandbox.ts",
-    "test:b2b": "node scripts/test_b2b_pricing.mjs"
+    "test:b2b": "node scripts/test_b2b_pricing.mjs",
+    "test:reporting": "node scripts/test_reporting.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -176,23 +176,25 @@ export async function addQuoteLineFromCatalog(formData: FormData) {
 
   const product = await prisma.catalogProduct.findFirst({
     where: { id: productId, organizationId: membership.organizationId },
-    include: { ratePlans: { orderBy: { createdAt: "asc" }, take: 1 } },
+    include: { ratePlans: { orderBy: { createdAt: "asc" } } },
   });
   if (!product) redirect(`/app/preventivi/${quoteId}`);
 
-  const rate = product.ratePlans[0];
+  const { pickRateForDate } = await import("@/lib/suppliers/pricing");
+  const rate = pickRateForDate(product.ratePlans, quote.departureDate);
   await prisma.quoteLine.create({
     data: {
       quoteId,
       productId: product.id,
       serviceType: product.type,
-      title: product.name,
+      title: product.name + (rate?.name ? ` · ${rate.name}` : ""),
       quantity,
       netCost: rate?.netCost ?? 0,
       unitPrice: rate?.sellPrice ?? 0,
       priceSource: product.priceSource,
       supplierCode: product.supplierCode,
       supplierRef: product.supplierRef,
+      notes: rate?.cancellationPolicy || undefined,
     },
   });
 

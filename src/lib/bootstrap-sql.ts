@@ -566,6 +566,24 @@ export const UPGRADE_SQL = [
   `CREATE INDEX IF NOT EXISTS "BrandSite_organizationId_brandId_idx" ON "BrandSite"("organizationId", "brandId")`,
   `CREATE INDEX IF NOT EXISTS "BrandSite_organizationId_status_idx" ON "BrandSite"("organizationId", "status")`,
   `CREATE INDEX IF NOT EXISTS "Lead_organizationId_campaignId_idx" ON "Lead"("organizationId", "campaignId")`,
+  `CREATE TABLE IF NOT EXISTS "SupplierConnector" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'MOCK_DMC',
+    "status" TEXT NOT NULL DEFAULT 'READY',
+    "enabled" INTEGER NOT NULL DEFAULT 1,
+    "baseUrl" TEXT,
+    "configJson" TEXT,
+    "lastError" TEXT,
+    "lastSyncAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "SupplierConnector_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "SupplierConnector_organizationId_code_key" ON "SupplierConnector"("organizationId", "code")`,
+  `CREATE INDEX IF NOT EXISTS "SupplierConnector_organizationId_enabled_idx" ON "SupplierConnector"("organizationId", "enabled")`,
 ];
 
 export const UPGRADE_ALTERS = [

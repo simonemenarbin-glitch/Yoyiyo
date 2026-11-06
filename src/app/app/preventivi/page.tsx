@@ -29,7 +29,7 @@ export default async function QuotesPage() {
             Preventivi lavorabili
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Da lead CRM o da zero — righe da listino proprio (API fornitori in coda).
+            Da lead CRM o da zero — ricerca listino proprio + offerte API (sandbox o live).
           </p>
         </div>
         <div className="flex gap-2">

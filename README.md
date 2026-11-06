@@ -1,23 +1,42 @@
-# Rotta ERP (Yoyiyo)
+# Rotta ERP
 
-Gestionale cloud multi-brand per tour operator: CRM multi-canale, preventivi, pratiche, hub Marchi (campagne + landing).
+Piattaforma SaaS cloud stile MedusaERP per agenzie di viaggio e tour operator.
 
-## Demo locale
+## Nucleo attuale (v0.1)
+
+- Multi-tenant: Organization + Brand + Membership/ruoli
+- Catalogo prodotti + rate plan (contratti)
+- Pratiche multi-servizio con margine
+- Preventivi / vendita multi-canale (B2B, web, banco, landing, WhatsApp)
+- CRM base: clienti + partner agenzia
+- Auth a sessione + audit log
+
+## Roadmap verso parità Medusa
+
+1. Checkout sito brandizzato + guest quote
+2. Inbox CRM omnicanale (WhatsApp/email)
+3. Marketing / campagne
+4. Reporting direzionale avanzato + contabilità
+5. Connettori fornitori / GDS-OTA
+6. AI assistenti su quotazioni e contenuti
+7. Hardening enterprise (MFA, DR drill, SSO)
+
+## Stack
+
+- Next.js (App Router) + TypeScript
+- Prisma + SQLite (locale) → Postgres in produzione
+- Tailwind CSS
+
+## Avvio locale
 
 ```bash
+cd rotta-erp
 npm install
-npx prisma migrate deploy
+npx prisma migrate dev
 npm run db:seed
 npm run dev
 ```
 
-Login demo: `demo@rotta.erp` / `rotta-demo`
+Apri [http://localhost:3000](http://localhost:3000)
 
-## Stack
-
-Next.js App Router · Prisma · SQLite · Tailwind
-
-## Note
-
-Questo repo alimenta il progetto Cursor **AI Content Automation**.
-Il deploy Hostinger è separato (`red-otter-906369.hostingersite.com`).
+Demo: `demo@rotta.erp` / `rotta-demo`

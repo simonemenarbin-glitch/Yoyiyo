@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { BOOTSTRAP_SQL, UPGRADE_ALTERS, UPGRADE_SQL } from "./bootstrap-sql";
 import { defaultImapAccounts, loadLocalMailPassword } from "./channels/mail-password";
+import { ensureDefaultConnectors } from "./suppliers/registry";
 
 let bootstrapped = false;
 let bootPromise: Promise<void> | null = null;
@@ -42,6 +43,10 @@ async function seedDemoIfEmpty(prisma: PrismaClient) {
   if (existing) {
     await ensureDemoLeads(prisma, existing.id);
     await ensureDemoBrandHub(prisma, existing.id);
+    const mem = await prisma.membership.findFirst({ where: { userId: existing.id } });
+    if (mem && (await tableExists(prisma, "SupplierConnector"))) {
+      await ensureDefaultConnectors(prisma, mem.organizationId);
+    }
     return;
   }
 
@@ -185,6 +190,7 @@ async function seedDemoIfEmpty(prisma: PrismaClient) {
 
   await ensureDemoLeads(prisma, user.id, org.id, brand.id);
   await ensureDemoBrandHub(prisma, user.id, org.id);
+  await ensureDefaultConnectors(prisma, org.id);
 }
 
 async function ensureDemoBrandHub(

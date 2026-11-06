@@ -28,13 +28,21 @@
 - [x] Timeline conversazione lead (IN/OUT tracciati)
 - [x] Più pipeline per cliente + filtri tipo cliente / marchio / partner
 
+## Fase 0.6 — Preventivo + pricing multi-fonte (fatto)
+
+- [x] `SupplierConnector` per org (own-list, mock DMC, stub Travio/Hotelston)
+- [x] Ricerca offerte da preventivo (listino proprio date-aware + API sandbox)
+- [x] Aggiunta riga da offerta con priceSource / supplierRef
+- [x] Conversione preventivo → pratica
+- [x] Pagina `/app/fornitori` enable/disable connettori
+
 ## Fase 1 — Vendita completa
 
 - [ ] Storefront multi-brand
 - [ ] Checkout guest + richiesta preventivo
 - [ ] Listini agenzia partner
 - [ ] Documenti automatici (voucher / conferma)
-- [ ] Connettori API fornitori turistici (hotel/transfer/DMC)
+- [ ] Credenziali live connettori API (Travio/Hotelston/…) al posto del sandbox
 
 ## Fase 2 — Operations
 

@@ -5,10 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { StatusPill } from "@/components/StatusPill";
 import {
   addManualQuoteLine,
-  addQuoteLineFromCatalog,
   removeQuoteLine,
   updateQuotePipeline,
 } from "@/lib/actions/crm";
+import {
+  addQuoteLineFromCatalogDated,
+  addQuoteLineFromSupplierOffer,
+  convertQuoteToPractice,
+} from "@/lib/actions/quotes-pricing";
 import { eur, marginLabel, shortDate } from "@/lib/format";
 import {
   channelLabel,
@@ -18,16 +22,22 @@ import {
   productTypeLabel,
   quoteStatusLabel,
 } from "@/lib/labels";
+import { ensureDefaultConnectors, searchSupplierOffers } from "@/lib/suppliers/registry";
+import { pickRateForDate } from "@/lib/suppliers/pricing";
+import type { ProductType } from "@prisma/client";
 
 export default async function QuoteDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const membership = primaryMembership(user)!;
   const { id } = await params;
+  const sp = await searchParams;
 
   const quote = await prisma.quote.findFirst({
     where: { id, organizationId: membership.organizationId },
@@ -43,31 +53,83 @@ export default async function QuoteDetailPage({
 
   if (!quote) notFound();
 
+  await ensureDefaultConnectors(prisma, membership.organizationId);
+
   const catalog = await prisma.catalogProduct.findMany({
     where: { organizationId: membership.organizationId, active: true },
-    include: { ratePlans: { orderBy: { createdAt: "asc" }, take: 1 } },
+    include: { ratePlans: { orderBy: { createdAt: "asc" } } },
     orderBy: [{ type: "asc" }, { name: "asc" }],
   });
 
+  const connectors = await prisma.supplierConnector.findMany({
+    where: { organizationId: membership.organizationId, enabled: true },
+    orderBy: { name: "asc" },
+  });
+
+  const q = typeof sp.q === "string" ? sp.q : "";
+  const city = typeof sp.city === "string" ? sp.city : "";
+  const connectorCode = typeof sp.connector === "string" ? sp.connector : "";
+  const serviceTypeRaw = typeof sp.type === "string" ? sp.type : "";
+  const serviceType = (serviceTypeRaw || "") as ProductType | "";
+  const didSearch = Boolean(q || city || connectorCode || serviceType);
+
+  const offers = didSearch
+    ? await searchSupplierOffers(prisma, {
+        organizationId: membership.organizationId,
+        query: q,
+        city,
+        connectorCode: connectorCode || undefined,
+        serviceType: serviceType || undefined,
+        checkIn: quote.departureDate,
+        checkOut: quote.returnDate,
+        paxCount: quote.paxCount,
+      })
+    : [];
+
   return (
     <div className="space-y-6">
-      <div>
-        <Link href="/app/preventivi" className="text-sm text-teal-800/70">
-          ← Preventivi
-        </Link>
-        <h1
-          className="mt-2 text-3xl text-[#0F3D3E]"
-          style={{ fontFamily: "var(--font-display), Georgia, serif" }}
-        >
-          {quote.title}
-        </h1>
-        <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
-          <StatusPill>{quoteStatusLabel[quote.status]}</StatusPill>
-          <StatusPill>{pipelineStageLabel[quote.pipelineStage]}</StatusPill>
-          <span>{quote.number}</span>
-          <span>· {channelLabel[quote.channel]}</span>
-          <span>· {quote.paxCount} pax</span>
-          <span>· valido fino al {shortDate(quote.validUntil)}</span>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <Link href="/app/preventivi" className="text-sm text-teal-800/70">
+            ← Preventivi
+          </Link>
+          <h1
+            className="mt-2 text-3xl text-[#0F3D3E]"
+            style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+          >
+            {quote.title}
+          </h1>
+          <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
+            <StatusPill>{quoteStatusLabel[quote.status]}</StatusPill>
+            <StatusPill>{pipelineStageLabel[quote.pipelineStage]}</StatusPill>
+            <span>{quote.number}</span>
+            <span>· {channelLabel[quote.channel]}</span>
+            <span>· {quote.paxCount} pax</span>
+            <span>· valido fino al {shortDate(quote.validUntil)}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/app/fornitori"
+            className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]"
+          >
+            Fornitori
+          </Link>
+          {quote.practice ? (
+            <Link
+              href={`/app/pratiche/${quote.practice.id}`}
+              className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]"
+            >
+              Pratica {quote.practice.reference}
+            </Link>
+          ) : (
+            <form action={convertQuoteToPractice}>
+              <input type="hidden" name="quoteId" value={quote.id} />
+              <button className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-medium text-white">
+                Crea pratica
+              </button>
+            </form>
+          )}
         </div>
       </div>
 
@@ -176,7 +238,14 @@ export default async function QuoteDetailPage({
           <tbody>
             {quote.lines.map((line) => (
               <tr key={line.id} className="border-t border-slate-100">
-                <td className="px-4 py-3 font-medium">{line.title}</td>
+                <td className="px-4 py-3 font-medium">
+                  {line.title}
+                  {line.supplierRef ? (
+                    <div className="text-xs font-normal text-slate-500">
+                      {line.supplierCode || "REF"} · {line.supplierRef}
+                    </div>
+                  ) : null}
+                </td>
                 <td className="px-4 py-3">{productTypeLabel[line.serviceType]}</td>
                 <td className="px-4 py-3">{priceSourceLabel[line.priceSource]}</td>
                 <td className="px-4 py-3">{line.quantity}</td>
@@ -197,7 +266,7 @@ export default async function QuoteDetailPage({
             {quote.lines.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-                  Nessuna riga — aggiungi dal listino o inserisci una voce manuale.
+                  Nessuna riga — cerca da listino/API o inserisci una voce manuale.
                 </td>
               </tr>
             ) : null}
@@ -205,13 +274,147 @@ export default async function QuoteDetailPage({
         </table>
       </section>
 
+      <section className="rounded-2xl border border-teal-900/10 bg-white/80 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-[#0F3D3E]">Cerca listino proprio + API fornitori</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Stesso flusso Medusa-style: ricerca multi-fonte, poi aggiungi la riga al preventivo.
+              Senza credenziali live i connettori esterni usano sandbox demo.
+            </p>
+          </div>
+        </div>
+        <form method="get" className="mt-4 grid gap-3 md:grid-cols-5">
+          <label className="block text-sm md:col-span-2">
+            <span className="mb-1 block text-slate-600">Testo</span>
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="es. Pechino hotel, panda, treno AV"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Città</span>
+            <input
+              name="city"
+              defaultValue={city}
+              placeholder="Chengdu"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Tipo</span>
+            <select name="type" defaultValue={serviceType} className="w-full rounded-xl border border-slate-200 px-3 py-2.5">
+              <option value="">Tutti</option>
+              {Object.entries(productTypeLabel).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-slate-600">Fonte</span>
+            <select
+              name="connector"
+              defaultValue={connectorCode}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            >
+              <option value="">Tutte le fonti</option>
+              {connectors.map((c) => (
+                <option key={c.id} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="md:col-span-5">
+            <button className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm text-white">
+              Cerca offerte
+            </button>
+          </div>
+        </form>
+
+        {didSearch ? (
+          <div className="mt-4 overflow-hidden rounded-xl border border-slate-100">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Offerta</th>
+                  <th className="px-3 py-2 font-medium">Fonte</th>
+                  <th className="px-3 py-2 font-medium text-right">Netto</th>
+                  <th className="px-3 py-2 font-medium text-right">Vendita</th>
+                  <th className="px-3 py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {offers.map((offer) => (
+                  <tr key={offer.offerId} className="border-t border-slate-100">
+                    <td className="px-3 py-2">
+                      <div className="font-medium">{offer.title}</div>
+                      <div className="text-xs text-slate-500">
+                        {productTypeLabel[offer.serviceType]}
+                        {offer.city ? ` · ${offer.city}` : ""}
+                        {offer.supplierRef ? ` · ${offer.supplierRef}` : ""}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      {offer.connectorName}
+                      <div className="text-xs text-slate-500">
+                        {priceSourceLabel[offer.priceSource]}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-right">{eur(offer.netCost)}</td>
+                    <td className="px-3 py-2 text-right font-medium">{eur(offer.sellPrice)}</td>
+                    <td className="px-3 py-2 text-right">
+                      <form action={addQuoteLineFromSupplierOffer} className="inline-flex items-center gap-2">
+                        <input type="hidden" name="quoteId" value={quote.id} />
+                        <input type="hidden" name="title" value={offer.title} />
+                        <input type="hidden" name="serviceType" value={offer.serviceType} />
+                        <input type="hidden" name="netCost" value={String(offer.netCost)} />
+                        <input type="hidden" name="unitPrice" value={String(offer.sellPrice)} />
+                        <input type="hidden" name="priceSource" value={offer.priceSource} />
+                        <input type="hidden" name="supplierCode" value={offer.supplierCode} />
+                        <input type="hidden" name="supplierRef" value={offer.supplierRef} />
+                        <input type="hidden" name="productId" value={offer.productId || ""} />
+                        <input type="hidden" name="notes" value={offer.notes || ""} />
+                        <input type="hidden" name="connectorName" value={offer.connectorName} />
+                        <input
+                          name="quantity"
+                          type="number"
+                          min={1}
+                          defaultValue={1}
+                          className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-sm"
+                        />
+                        <button className="rounded-lg bg-[#0F3D3E] px-3 py-1.5 text-xs font-medium text-white">
+                          Aggiungi
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+                {offers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-3 py-6 text-center text-slate-500">
+                      Nessuna offerta per questi filtri.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </section>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-2xl border border-teal-900/10 bg-white/80 p-5">
-          <h2 className="font-semibold text-[#0F3D3E]">Aggiungi da listino proprio</h2>
+          <h2 className="font-semibold text-[#0F3D3E]">Aggiungi rapido da listino</h2>
           <p className="mt-1 text-xs text-slate-500">
-            Oggi: rate plan interni. Domani: stesso flusso con priceSource = API fornitore.
+            Usa il rate plan valido sulla data partenza del preventivo
+            {quote.departureDate ? ` (${shortDate(quote.departureDate)})` : ""}.
           </p>
-          <form action={addQuoteLineFromCatalog} className="mt-3 space-y-3">
+          <form action={addQuoteLineFromCatalogDated} className="mt-3 space-y-3">
             <input type="hidden" name="quoteId" value={quote.id} />
             <label className="block text-sm">
               <span className="mb-1 block text-slate-600">Prodotto</span>
@@ -222,7 +425,7 @@ export default async function QuoteDetailPage({
               >
                 <option value="">Seleziona…</option>
                 {catalog.map((p) => {
-                  const rate = p.ratePlans[0];
+                  const rate = pickRateForDate(p.ratePlans, quote.departureDate);
                   return (
                     <option key={p.id} value={p.id}>
                       {productTypeLabel[p.type]} · {p.name}
@@ -252,7 +455,7 @@ export default async function QuoteDetailPage({
         <section className="rounded-2xl border border-teal-900/10 bg-white/80 p-5">
           <h2 className="font-semibold text-[#0F3D3E]">Voce manuale</h2>
           <p className="mt-1 text-xs text-slate-500">
-            Per costi fuori listino o placeholder finché non arriva l’API fornitore.
+            Fuori listino / placeholder finché non c’è live quote fornitore.
           </p>
           <form action={addManualQuoteLine} className="mt-3 grid gap-3 sm:grid-cols-2">
             <input type="hidden" name="quoteId" value={quote.id} />

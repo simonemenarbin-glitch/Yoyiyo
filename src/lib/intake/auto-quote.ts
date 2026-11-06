@@ -1,5 +1,6 @@
 import type { CatalogProduct, Lead, ProductType, RatePlan } from "@prisma/client";
 import { recalcQuoteTotals } from "@/lib/quote-math";
+import { pickRateForDate } from "@/lib/suppliers/pricing";
 
 type ProductWithRate = CatalogProduct & { ratePlans: RatePlan[] };
 
@@ -69,8 +70,9 @@ export function pickCatalogLines(input: {
   }
 
   const nights = Math.max(1, (input.durationDays || 8) - 1);
+  const when = null as Date | null; // lead-based quotes may pass dates later
   const lines = picked.map((product) => {
-    const rate = product.ratePlans[0];
+    const rate = pickRateForDate(product.ratePlans, when);
     const isHotel = product.type === "HOTEL";
     const quantity = isHotel ? Math.min(nights, 4) : product.type === "TRANSFER" ? 1 : 1;
     const paxFactor = product.type === "OTHER" || product.type === "FLIGHT" ? input.paxCount : 1;
@@ -87,7 +89,9 @@ export function pickCatalogLines(input: {
       notes:
         product.priceSource === "SUPPLIER_API"
           ? "Slot API fornitore — tariffa da confermare a live quote"
-          : undefined,
+          : rate?.name
+            ? `Rate: ${rate.name}`
+            : undefined,
     };
   });
 

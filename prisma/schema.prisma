@@ -165,6 +165,23 @@ enum SitePageType {
   CONTENT
 }
 
+enum SupplierConnectorKind {
+  OWN_LIST
+  MOCK_DMC
+  TRAVIO
+  NETSTORMING
+  HOTELSTON
+  BOKUN
+  MANUAL_API
+}
+
+enum SupplierConnectorStatus {
+  READY
+  NEEDS_CREDENTIALS
+  DISABLED
+  ERROR
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -187,6 +204,29 @@ model Organization {
   messages     ConversationMessage[]
   campaigns    Campaign[]
   sites        BrandSite[]
+  suppliers    SupplierConnector[]
+}
+
+model SupplierConnector {
+  id             String                   @id @default(cuid())
+  organizationId String
+  code           String
+  name           String
+  kind           SupplierConnectorKind    @default(MOCK_DMC)
+  status         SupplierConnectorStatus  @default(READY)
+  enabled        Boolean                  @default(true)
+  baseUrl        String?
+  /// Non-secret config (markets, markupPct, mock seed). Secrets stay in env / Hostinger vars.
+  configJson     String?
+  lastError      String?
+  lastSyncAt     DateTime?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, code])
+  @@index([organizationId, enabled])
 }
 
 model ChannelConnection {

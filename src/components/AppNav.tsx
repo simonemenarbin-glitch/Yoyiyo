@@ -15,6 +15,7 @@ const more = [
   { href: "/app/preventivi", label: "Preventivi" },
   { href: "/app/pratiche", label: "Pratiche" },
   { href: "/app/catalogo", label: "Listino" },
+  { href: "/app/fornitori", label: "Fornitori" },
   { href: "/app/clienti", label: "Clienti" },
 ];
 

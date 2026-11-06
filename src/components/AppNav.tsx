@@ -16,6 +16,7 @@ const more = [
   { href: "/app/pratiche", label: "Pratiche" },
   { href: "/app/catalogo", label: "Catalogo" },
   { href: "/app/fornitori", label: "Fornitori" },
+  { href: "/app/b2b", label: "B2B" },
   { href: "/app/clienti", label: "Clienti" },
 ];
 

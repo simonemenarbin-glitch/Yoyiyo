@@ -22,6 +22,8 @@ async function main() {
   await prisma.lead.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
+  await prisma.partnerPriceLine.deleteMany().catch(() => undefined);
+  await prisma.partnerPriceList.deleteMany().catch(() => undefined);
   await prisma.rateSupplement.deleteMany();
   await prisma.allotmentBucket.deleteMany();
   await prisma.contractPolicy.deleteMany();
@@ -30,6 +32,7 @@ async function main() {
   await prisma.catalogProduct.deleteMany();
   await prisma.supplierConnector.deleteMany().catch(() => undefined);
   await prisma.agencyPartner.deleteMany();
+  await prisma.partnerNet.deleteMany().catch(() => undefined);
   await prisma.customer.deleteMany();
   await prisma.session.deleteMany();
   await prisma.membership.deleteMany();
@@ -126,12 +129,54 @@ async function main() {
     },
   });
 
+  const netPreferred = await prisma.partnerNet.create({
+    data: {
+      organizationId: org.id,
+      code: "NET-A",
+      name: "Rete Preferred Italia",
+      kind: "PREFERRED",
+      defaultCommissionPct: 12,
+      defaultMarkupPct: 10,
+      notes: "Agenzie preferred — listino netto competitivo",
+    },
+  });
+
+  const netPromoter = await prisma.partnerNet.create({
+    data: {
+      organizationId: org.id,
+      code: "NET-P",
+      name: "Rete Promoter",
+      kind: "PROMOTER",
+      defaultCommissionPct: 15,
+      defaultMarkupPct: 12,
+    },
+  });
+
   const partner = await prisma.agencyPartner.create({
     data: {
       organizationId: org.id,
+      netId: netPreferred.id,
       name: "Be Friend Travel",
       email: "booking@befriend.example",
+      contactName: "Sara BeFriend",
+      city: "Milano",
       commissionPct: 12,
+      portalEnabled: true,
+      portalToken: "prt_befriend_demo_token_0001",
+    },
+  });
+
+  await prisma.agencyPartner.create({
+    data: {
+      organizationId: org.id,
+      netId: netPromoter.id,
+      name: "Promoter Nord Est",
+      email: "promo@nordest.example",
+      contactName: "Luca Promo",
+      city: "Treviso",
+      commissionPct: 15,
+      portalEnabled: true,
+      portalToken: "prt_nordest_demo_token_0002",
     },
   });
 
@@ -802,6 +847,44 @@ async function main() {
     data: { leadsCount: 1, revenueAttributed: 0 },
   });
 
+  const priceList = await prisma.partnerPriceList.create({
+    data: {
+      organizationId: org.id,
+      netId: netPreferred.id,
+      partnerId: partner.id,
+      name: "Listino NET-A Be Friend 2026",
+      notes: "Netto agenzia preferred",
+      lines: {
+        create: [
+          {
+            productId: hotel.id,
+            serviceType: ProductType.HOTEL,
+            title: hotel.name,
+            netCost: 95,
+            agencyNet: 106.4,
+            suggestedSell: 120,
+          },
+          {
+            productId: guide.id,
+            serviceType: ProductType.EXCURSION,
+            title: guide.name,
+            netCost: 180,
+            agencyNet: 201.6,
+            suggestedSell: 220,
+          },
+          {
+            productId: transfer.id,
+            serviceType: ProductType.TRANSFER,
+            title: transfer.name,
+            netCost: 45,
+            agencyNet: 50.4,
+            suggestedSell: 60,
+          },
+        ],
+      },
+    },
+  });
+
   await prisma.auditLog.create({
     data: {
       organizationId: org.id,
@@ -810,9 +893,11 @@ async function main() {
       entityType: "Organization",
       entityId: org.id,
       metaJson: JSON.stringify({
-        message: "Demo Brand hub + CRM sync canali → pipeline → preventivo",
+        message: "Demo Brand hub + CRM sync canali → pipeline → preventivo + B2B",
         imapReady: Boolean(imapPass),
         publicLanding: "/s/yoyiyo/cina-classic",
+        promoterPortal: `/p/${partner.portalToken}`,
+        priceListId: priceList.id,
       }),
     },
   });
@@ -821,6 +906,7 @@ async function main() {
   console.log("Login: demo@rotta.erp / rotta-demo");
   console.log(`Org: ${org.slug} | brands: ${org.brands.map((b) => b.slug).join(", ")}`);
   console.log(`IMAP password loaded: ${imapPass ? "yes" : "no (compila maschera canali)"}`);
+  console.log(`B2B portal: /p/${partner.portalToken}`);
 }
 
 main()

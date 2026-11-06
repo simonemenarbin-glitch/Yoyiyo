@@ -222,6 +222,13 @@ enum PolicyKind {
   GENERAL
 }
 
+enum PartnerNetKind {
+  STANDARD
+  PREFERRED
+  PROMOTER
+  WHITE_LABEL
+}
+
 model Organization {
   id        String   @id @default(cuid())
   name      String
@@ -234,6 +241,8 @@ model Organization {
   memberships  Membership[]
   customers    Customer[]
   partners     AgencyPartner[]
+  partnerNets  PartnerNet[]
+  priceLists   PartnerPriceList[]
   products     CatalogProduct[]
   policies     ContractPolicy[]
   practices    Practice[]
@@ -508,20 +517,101 @@ model Customer {
   @@index([organizationId, clientType])
 }
 
+model PartnerNet {
+  id                    String         @id @default(cuid())
+  organizationId        String
+  code                  String
+  name                  String
+  kind                  PartnerNetKind @default(STANDARD)
+  /// Markup % that partner adds on TO agency-net to reach B2C suggest.
+  defaultMarkupPct      Float          @default(10)
+  defaultCommissionPct  Float          @default(10)
+  active                Boolean        @default(true)
+  notes                 String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  partners     AgencyPartner[]
+  priceLists   PartnerPriceList[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId, active])
+}
+
 model AgencyPartner {
   id             String   @id @default(cuid())
   organizationId String
+  netId          String?
   name           String
   email          String?
   phone          String?
+  contactName    String?
+  city           String?
+  vatNumber      String?
   commissionPct  Float    @default(10)
+  /// Opaque token for /p/[token] promoter portal (not a password secret).
+  portalToken    String?  @unique
+  portalEnabled  Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  net          PartnerNet?        @relation(fields: [netId], references: [id], onDelete: SetNull)
+  priceLists   PartnerPriceList[]
   practices    Practice[]
   quotes       Quote[]
   leads        Lead[]
+
+  @@index([organizationId])
+  @@index([netId])
+}
+
+/// Differentiated B2B price list (per net and/or per partner).
+model PartnerPriceList {
+  id             String    @id @default(cuid())
+  organizationId String
+  netId          String?
+  partnerId      String?
+  name           String
+  currency       String    @default("EUR")
+  validFrom      DateTime?
+  validTo        DateTime?
+  active         Boolean   @default(true)
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  net          PartnerNet?        @relation(fields: [netId], references: [id], onDelete: SetNull)
+  partner      AgencyPartner?     @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  lines        PartnerPriceLine[]
+
+  @@index([organizationId, active])
+  @@index([netId])
+  @@index([partnerId])
+}
+
+model PartnerPriceLine {
+  id             String      @id @default(cuid())
+  priceListId    String
+  productId      String?
+  serviceType    ProductType @default(OTHER)
+  title          String
+  /// TO purchase / land cost.
+  netCost        Float       @default(0)
+  /// Differentiated net to the agency (after TO margin).
+  agencyNet      Float       @default(0)
+  /// Suggested B2C sell for the agency counter.
+  suggestedSell  Float       @default(0)
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  priceList PartnerPriceList @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+  product   CatalogProduct?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([priceListId])
 }
 
 model Lead {
@@ -592,12 +682,13 @@ model CatalogProduct {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  organization  Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   ratePlans     RatePlan[]
   periods       ContractPeriod[]
   supplements   RateSupplement[]
   allotments    AllotmentBucket[]
   policies      ContractPolicy[]
+  partnerLines  PartnerPriceLine[]
   practiceLines PracticeLine[]
   quoteLines    QuoteLine[]
 

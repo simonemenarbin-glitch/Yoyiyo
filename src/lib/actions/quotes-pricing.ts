@@ -137,6 +137,10 @@ export async function convertQuoteToPractice(formData: FormData) {
   });
   const reference = `PRA-${new Date().getFullYear()}-${String(count + 1).padStart(4, "0")}`;
 
+  const groupageOver20 = quote.paxCount > 20;
+  const depositPct = groupageOver20 ? 10 : 0;
+  const depositAmount = groupageOver20 ? Math.round(quote.totalSell * 0.1) : 0;
+
   const practice = await prisma.practice.create({
     data: {
       organizationId: membership.organizationId,
@@ -150,6 +154,10 @@ export async function convertQuoteToPractice(formData: FormData) {
       departureDate: quote.departureDate,
       returnDate: quote.returnDate,
       paxCount: quote.paxCount,
+      groupageOver20,
+      depositPct,
+      depositAmount,
+      releaseDays: 120,
       currency: quote.currency,
       totalSell: quote.totalSell,
       totalCost: quote.totalCost,

@@ -36,6 +36,20 @@ enum PracticeStatus {
   CANCELLED
 }
 
+enum PracticeChangeKind {
+  CONFIRMATION
+  VARIATION
+  PARTIAL_CANCEL
+  FULL_CANCEL
+  NOTE
+}
+
+enum PracticeDocType {
+  VOUCHER
+  FOGLIO_NOTIZIE
+  CONFERMA
+}
+
 enum QuoteStatus {
   DRAFT
   SENT
@@ -588,6 +602,12 @@ model Practice {
   departureDate  DateTime?
   returnDate     DateTime?
   paxCount       Int            @default(1)
+  /// Groupage oltre 20 pax → acconto 10% rimborsabile fino a release voli (120 gg).
+  groupageOver20 Boolean        @default(false)
+  depositPct     Float          @default(0)
+  depositAmount  Float          @default(0)
+  releaseDays    Int            @default(120)
+  confirmedAt    DateTime?
   currency       String         @default("EUR")
   totalSell      Float          @default(0)
   totalCost      Float          @default(0)
@@ -596,15 +616,56 @@ model Practice {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  brand        Brand?         @relation(fields: [brandId], references: [id])
-  customer     Customer?      @relation(fields: [customerId], references: [id])
-  partner      AgencyPartner? @relation(fields: [partnerId], references: [id])
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?              @relation(fields: [brandId], references: [id])
+  customer     Customer?           @relation(fields: [customerId], references: [id])
+  partner      AgencyPartner?      @relation(fields: [partnerId], references: [id])
   lines        PracticeLine[]
   quotes       Quote[]
+  changes      PracticeChange[]
+  documents    PracticeDocument[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])
+}
+
+model PracticeChange {
+  id               String             @id @default(cuid())
+  practiceId       String
+  kind             PracticeChangeKind
+  title            String
+  detail           String?
+  paxAffected      Int?
+  sellBase         Float              @default(0)
+  sellDelta        Float              @default(0)
+  costDelta        Float              @default(0)
+  penaltyPct       Float?
+  penaltyAmount    Float?
+  daysToDeparture  Int?
+  lineId           String?
+  createdByUserId  String?
+  effectiveAt      DateTime           @default(now())
+  createdAt        DateTime           @default(now())
+
+  practice Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+
+  @@index([practiceId, createdAt])
+}
+
+model PracticeDocument {
+  id              String          @id @default(cuid())
+  practiceId      String
+  type            PracticeDocType
+  title           String
+  bodyHtml        String
+  version         Int             @default(1)
+  generatedByUserId String?
+  generatedAt     DateTime        @default(now())
+  createdAt       DateTime        @default(now())
+
+  practice Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+
+  @@index([practiceId, type])
 }
 
 model PracticeLine {

@@ -44,12 +44,19 @@
 - [ ] Documenti automatici (voucher / conferma)
 - [ ] Credenziali live connettori API (Travio/Hotelston/…) al posto del sandbox
 
+## Fase 1.5 — Pratiche ops + documenti (fatto)
+
+- [x] Policy penali FIT vs groupage >20 (acconto 10% / release 120 gg + scala)
+- [x] Variazioni e cancellazioni (riga / totale) con storico `PracticeChange`
+- [x] Documenti: voucher, conferma, foglio notizie (HTML stampabile)
+- [x] Flag groupage, acconto, confirmedAt su pratica
+
 ## Fase 2 — Operations
 
-- [ ] Workflow stati pratica + variazioni/cancellazioni
-- [ ] Penali e release (FIT vs groupage >20)
-- [ ] Rooming list / documenti viaggio
+- [ ] Rooming list strutturata + pax nominativi
 - [ ] Task operativi e assegnazioni
+- [ ] Export PDF nativo (oltre HTML print)
+- [ ] RQ fornitore tracciate per riga
 
 ## Fase 3 — CRM omnicanale
 

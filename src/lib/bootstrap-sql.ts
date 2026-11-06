@@ -584,6 +584,39 @@ export const UPGRADE_SQL = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "SupplierConnector_organizationId_code_key" ON "SupplierConnector"("organizationId", "code")`,
   `CREATE INDEX IF NOT EXISTS "SupplierConnector_organizationId_enabled_idx" ON "SupplierConnector"("organizationId", "enabled")`,
+  `CREATE TABLE IF NOT EXISTS "PracticeChange" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "practiceId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "detail" TEXT,
+    "paxAffected" INTEGER,
+    "sellBase" REAL NOT NULL DEFAULT 0,
+    "sellDelta" REAL NOT NULL DEFAULT 0,
+    "costDelta" REAL NOT NULL DEFAULT 0,
+    "penaltyPct" REAL,
+    "penaltyAmount" REAL,
+    "daysToDeparture" INTEGER,
+    "lineId" TEXT,
+    "createdByUserId" TEXT,
+    "effectiveAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PracticeChange_practiceId_fkey" FOREIGN KEY ("practiceId") REFERENCES "Practice" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE INDEX IF NOT EXISTS "PracticeChange_practiceId_createdAt_idx" ON "PracticeChange"("practiceId", "createdAt")`,
+  `CREATE TABLE IF NOT EXISTS "PracticeDocument" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "practiceId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "bodyHtml" TEXT NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "generatedByUserId" TEXT,
+    "generatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PracticeDocument_practiceId_fkey" FOREIGN KEY ("practiceId") REFERENCES "Practice" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  )`,
+  `CREATE INDEX IF NOT EXISTS "PracticeDocument_practiceId_type_idx" ON "PracticeDocument"("practiceId", "type")`,
 ];
 
 export const UPGRADE_ALTERS = [
@@ -625,4 +658,9 @@ export const UPGRADE_ALTERS = [
   { table: "Brand", column: "seoDescription", sql: `ALTER TABLE "Brand" ADD COLUMN "seoDescription" TEXT` },
   { table: "Brand", column: "socialJson", sql: `ALTER TABLE "Brand" ADD COLUMN "socialJson" TEXT` },
   { table: "Brand", column: "notes", sql: `ALTER TABLE "Brand" ADD COLUMN "notes" TEXT` },
+  { table: "Practice", column: "groupageOver20", sql: `ALTER TABLE "Practice" ADD COLUMN "groupageOver20" BOOLEAN NOT NULL DEFAULT false` },
+  { table: "Practice", column: "depositPct", sql: `ALTER TABLE "Practice" ADD COLUMN "depositPct" REAL NOT NULL DEFAULT 0` },
+  { table: "Practice", column: "depositAmount", sql: `ALTER TABLE "Practice" ADD COLUMN "depositAmount" REAL NOT NULL DEFAULT 0` },
+  { table: "Practice", column: "releaseDays", sql: `ALTER TABLE "Practice" ADD COLUMN "releaseDays" INTEGER NOT NULL DEFAULT 120` },
+  { table: "Practice", column: "confirmedAt", sql: `ALTER TABLE "Practice" ADD COLUMN "confirmedAt" DATETIME` },
 ];

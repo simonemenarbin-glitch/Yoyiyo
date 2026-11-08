@@ -643,6 +643,30 @@ export const UPGRADE_SQL = [
   `CREATE INDEX IF NOT EXISTS "InboxThread_organizationId_leadId_idx" ON "InboxThread"("organizationId", "leadId")`,
   `CREATE INDEX IF NOT EXISTS "ConversationMessage_threadId_createdAt_idx" ON "ConversationMessage"("threadId", "createdAt")`,
   `CREATE INDEX IF NOT EXISTS "ConversationMessage_organizationId_unread_idx" ON "ConversationMessage"("organizationId", "unread")`,
+  `CREATE TABLE IF NOT EXISTS "SocialPost" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT NOT NULL,
+    "campaignId" TEXT,
+    "platform" TEXT NOT NULL,
+    "contentType" TEXT NOT NULL DEFAULT 'POST',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "title" TEXT,
+    "body" TEXT NOT NULL,
+    "mediaUrl" TEXT,
+    "mediaCaption" TEXT,
+    "linkUrl" TEXT,
+    "scheduledAt" DATETIME,
+    "publishedAt" DATETIME,
+    "providerPostId" TEXT,
+    "lastError" TEXT,
+    "extrasJson" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_scheduledAt_idx" ON "SocialPost"("organizationId", "scheduledAt")`,
+  `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_status_platform_idx" ON "SocialPost"("organizationId", "status", "platform")`,
+  `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_brandId_idx" ON "SocialPost"("organizationId", "brandId")`,
 ];
 
 export const UPGRADE_ALTERS = [

@@ -11,7 +11,9 @@ import {
   registerPracticeVariation,
   updatePracticeOps,
 } from "@/lib/actions/practices-ops";
+import { createPracticeContract } from "@/lib/actions/contracts";
 import { computeCancellationPenalty, suggestedDeposit } from "@/lib/practices/penalties";
+import { contractStatusLabel } from "@/lib/practices/contract";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +37,7 @@ export default async function PracticeDetailPage({
       quotes: true,
       changes: { orderBy: { createdAt: "desc" }, take: 30 },
       documents: { orderBy: { generatedAt: "desc" }, take: 20 },
+      contracts: { orderBy: { createdAt: "desc" }, take: 10 },
     },
   });
 
@@ -317,6 +320,41 @@ export default async function PracticeDetailPage({
           </form>
         </section>
       </div>
+
+      <section className="rounded-2xl border border-teal-900/10 bg-white/80 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-[#0F3D3E]">Contratto + firma</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Conferma pratica → contratto HTML (stampa PDF/Word) → e-sign sandbox.
+            </p>
+          </div>
+          <form action={createPracticeContract} className="flex flex-wrap items-end gap-2">
+            <input type="hidden" name="practiceId" value={practice.id} />
+            <input type="hidden" name="confirmPractice" value="1" />
+            <button className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white">
+              Genera contratto
+            </button>
+          </form>
+        </div>
+        <div className="mt-4 space-y-2">
+          {practice.contracts.map((c) => (
+            <Link
+              key={c.id}
+              href={`/app/pratiche/${practice.id}/contratti/${c.id}`}
+              className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 text-sm hover:bg-teal-50/40"
+            >
+              <span className="font-medium text-[#0F3D3E]">{c.title}</span>
+              <span className="text-slate-500">
+                {contractStatusLabel[c.status]} · {shortDate(c.updatedAt)}
+              </span>
+            </Link>
+          ))}
+          {practice.contracts.length === 0 ? (
+            <p className="text-sm text-slate-500">Nessun contratto ancora.</p>
+          ) : null}
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-teal-900/10 bg-white/80 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">

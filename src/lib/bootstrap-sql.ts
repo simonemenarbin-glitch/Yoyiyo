@@ -684,6 +684,31 @@ export const UPGRADE_SQL = [
   )`,
   `CREATE INDEX IF NOT EXISTS "AudienceList_organizationId_kind_idx" ON "AudienceList"("organizationId", "kind")`,
   `CREATE INDEX IF NOT EXISTS "AudienceList_organizationId_brandId_idx" ON "AudienceList"("organizationId", "brandId")`,
+  `CREATE TABLE IF NOT EXISTS "PracticeContract" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "practiceId" TEXT NOT NULL,
+    "quoteId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "title" TEXT NOT NULL,
+    "bodyHtml" TEXT NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "signToken" TEXT NOT NULL,
+    "signerName" TEXT,
+    "signerEmail" TEXT,
+    "sentAt" DATETIME,
+    "viewedAt" DATETIME,
+    "signedAt" DATETIME,
+    "declinedAt" DATETIME,
+    "providerRef" TEXT,
+    "signatureMetaJson" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "PracticeContract_signToken_key" ON "PracticeContract"("signToken")`,
+  `CREATE INDEX IF NOT EXISTS "PracticeContract_organizationId_status_idx" ON "PracticeContract"("organizationId", "status")`,
+  `CREATE INDEX IF NOT EXISTS "PracticeContract_practiceId_idx" ON "PracticeContract"("practiceId")`,
 ];
 
 export const UPGRADE_ALTERS = [

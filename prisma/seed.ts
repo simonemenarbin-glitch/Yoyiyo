@@ -15,6 +15,9 @@ async function main() {
   await prisma.ingestedMessage.deleteMany();
   await prisma.channelConnection.deleteMany();
   await prisma.quoteLine.deleteMany();
+  await prisma.practiceContract.deleteMany();
+  await prisma.practiceDocument.deleteMany();
+  await prisma.practiceChange.deleteMany();
   await prisma.quote.deleteMany();
   await prisma.practiceLine.deleteMany();
   await prisma.practice.deleteMany();
@@ -382,11 +385,12 @@ async function main() {
       partnerId: partner.id,
       reference: "PRA-2026-0001",
       title: "Cina Classic 12gg — Bianchi",
-      status: "QUOTED",
+      status: "CONFIRMED",
       channel: "B2B",
       departureDate: new Date("2026-09-10"),
       returnDate: new Date("2026-09-21"),
       paxCount: 2,
+      confirmedAt: new Date(),
       totalSell: 454,
       totalCost: 390,
       marginPct: ((454 - 390) / 454) * 100,
@@ -434,7 +438,7 @@ async function main() {
     },
   });
 
-  await prisma.quote.create({
+  const quote = await prisma.quote.create({
     data: {
       organizationId: org.id,
       brandId: brand.id,
@@ -497,6 +501,50 @@ async function main() {
           },
         ],
       },
+    },
+  });
+
+  const { buildContractHtml, newSignToken } = await import("../src/lib/practices/contract");
+  const practiceFull = await prisma.practice.findFirstOrThrow({
+    where: { id: practice.id },
+    include: {
+      brand: true,
+      customer: true,
+      partner: true,
+      lines: true,
+      quotes: true,
+    },
+  });
+  const contractBuilt = buildContractHtml(practiceFull, {
+    signerName: `${customer.firstName} ${customer.lastName}`,
+    quoteNumber: quote.number,
+  });
+  const signToken = newSignToken();
+  await prisma.practiceContract.create({
+    data: {
+      organizationId: org.id,
+      practiceId: practice.id,
+      quoteId: quote.id,
+      status: "SENT",
+      title: `${contractBuilt.title} v1`,
+      bodyHtml: contractBuilt.bodyHtml,
+      version: 1,
+      signToken,
+      signerName: `${customer.firstName} ${customer.lastName}`,
+      signerEmail: customer.email,
+      sentAt: new Date(),
+      providerRef: `stub-esign-sent-${signToken.slice(-8)}`,
+      notes: "Seed: apri /firma/" + signToken,
+    },
+  });
+  await prisma.practiceDocument.create({
+    data: {
+      practiceId: practice.id,
+      type: "CONTRATTO",
+      title: contractBuilt.title,
+      bodyHtml: contractBuilt.bodyHtml,
+      version: 1,
+      generatedByUserId: user.id,
     },
   });
 

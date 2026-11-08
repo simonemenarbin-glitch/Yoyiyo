@@ -257,6 +257,10 @@ export async function generatePracticeDocument(formData: FormData) {
       depositAmount: practice.depositAmount,
     });
     built = buildConfermaHtml(practice, penalty.explanation);
+  } else if (type === "CONTRATTO") {
+    // Prefer dedicated createPracticeContract action; keep fallback for legacy forms.
+    const { buildContractHtml } = await import("@/lib/practices/contract");
+    built = buildContractHtml(practice);
   } else {
     built = buildVoucherHtml(practice);
   }

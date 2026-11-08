@@ -9,7 +9,8 @@ type PracticeFull = Practice & {
   customer: Customer | null;
   partner: AgencyPartner | null;
   lines: PracticeLine[];
-  quotes?: Quote[];
+  /** Solo `number` serve al contratto HTML (test e include Prisma parziali). */
+  quotes?: Pick<Quote, "number">[];
 };
 
 function esc(s: string) {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const primary = [
   { href: "/app", label: "Home", match: (p: string) => p === "/app" },
@@ -53,13 +53,14 @@ export function DesktopNav() {
   );
 }
 
+/** Remount on route change so the "Altro" sheet starts closed (no setState-in-effect). */
 export function MobileBottomNav() {
   const pathname = usePathname() || "/app";
-  const [open, setOpen] = useState(false);
+  return <MobileBottomNavInner key={pathname} pathname={pathname} />;
+}
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+function MobileBottomNavInner({ pathname }: { pathname: string }) {
+  const [open, setOpen] = useState(false);
 
   const moreActive = more.some(
     (m) => pathname === m.href || pathname.startsWith(m.href + "/"),
@@ -135,12 +136,11 @@ export function MobileBottomNav() {
 
 export function MobileTopMenu() {
   const pathname = usePathname() || "/app";
+  return <MobileTopMenuInner key={pathname} pathname={pathname} />;
+}
+
+function MobileTopMenuInner({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
   const all = [...primary, ...more];
 
   return (

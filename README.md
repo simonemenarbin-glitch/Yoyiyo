@@ -39,6 +39,7 @@ npm run test:social
 npm run test:growth
 npm run test:ai
 npm run test:contract
+npm run test:arap
 npm run dev
 ```
 
@@ -75,3 +76,8 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 
 - Pratica → «Genera contratto» → `/app/pratiche/[id]/contratti/[cid]`
 - Link pubblico sandbox `/firma/[token]` (invia / visualizza / firma / rifiuta)
+
+### Contabilità AR/AP
+
+- `/app/contabilita` — fatture clienti (AR) e fornitori (AP), regime STANDARD o 74-ter
+- Da pratica: bottoni «Fattura AR 74-ter» / «Costo AP fornitore»

@@ -12,6 +12,7 @@ import {
   updatePracticeOps,
 } from "@/lib/actions/practices-ops";
 import { createPracticeContract } from "@/lib/actions/contracts";
+import { createInvoice } from "@/lib/actions/invoices";
 import { computeCancellationPenalty, suggestedDeposit } from "@/lib/practices/penalties";
 import { contractStatusLabel } from "@/lib/practices/contract";
 
@@ -329,13 +330,33 @@ export default async function PracticeDetailPage({
               Conferma pratica → contratto HTML (stampa PDF/Word) → e-sign sandbox.
             </p>
           </div>
-          <form action={createPracticeContract} className="flex flex-wrap items-end gap-2">
-            <input type="hidden" name="practiceId" value={practice.id} />
-            <input type="hidden" name="confirmPractice" value="1" />
-            <button className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white">
-              Genera contratto
-            </button>
-          </form>
+          <div className="flex flex-wrap gap-2">
+            <form action={createPracticeContract}>
+              <input type="hidden" name="practiceId" value={practice.id} />
+              <input type="hidden" name="confirmPractice" value="1" />
+              <button className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white">
+                Genera contratto
+              </button>
+            </form>
+            <form action={createInvoice}>
+              <input type="hidden" name="practiceId" value={practice.id} />
+              <input type="hidden" name="direction" value="AR" />
+              <input type="hidden" name="regime" value="MARGIN_74TER" />
+              <input type="hidden" name="status" value="ISSUED" />
+              <button className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]">
+                Fattura AR 74-ter
+              </button>
+            </form>
+            <form action={createInvoice}>
+              <input type="hidden" name="practiceId" value={practice.id} />
+              <input type="hidden" name="direction" value="AP" />
+              <input type="hidden" name="regime" value="STANDARD" />
+              <input type="hidden" name="status" value="ISSUED" />
+              <button className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]">
+                Costo AP fornitore
+              </button>
+            </form>
+          </div>
         </div>
         <div className="mt-4 space-y-2">
           {practice.contracts.map((c) => (

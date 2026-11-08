@@ -66,6 +66,7 @@
 
 ## Fase 4 — Growth
 
+- [x] Landing builder + publish per brand (template hub `/app/landing`, anteprima, clone)
 - [ ] Campagne email/social
 - [ ] Reporting margini per brand/canale
 - [ ] AI quotazioni / import contratti

@@ -148,6 +148,73 @@ export function PublicSiteRenderer({
             );
           }
 
+          if (block.type === "gallery") {
+            return (
+              <section key={i} className="mb-14 grid gap-3 sm:grid-cols-3">
+                {block.items.map((item, j) => (
+                  <div
+                    key={j}
+                    className="overflow-hidden rounded-2xl border border-black/5"
+                    style={{
+                      background: `linear-gradient(145deg, ${primaryColor}33, ${secondaryColor}22)`,
+                      minHeight: 140,
+                    }}
+                  >
+                    <div className="flex h-full min-h-[140px] items-end p-4">
+                      <span className="rounded-lg bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700">
+                        {item.caption}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </section>
+            );
+          }
+
+          if (block.type === "text") {
+            return (
+              <section key={i} className="mb-14 max-w-3xl">
+                {block.title ? (
+                  <h2
+                    className="mb-3 text-2xl"
+                    style={{ color: primaryColor, fontFamily: "Georgia, serif" }}
+                  >
+                    {block.title}
+                  </h2>
+                ) : null}
+                <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700">
+                  {block.body}
+                </p>
+              </section>
+            );
+          }
+
+          if (block.type === "cta") {
+            return (
+              <section
+                key={i}
+                className="mb-14 rounded-3xl px-6 py-10 text-center text-white sm:px-10"
+                style={{
+                  background: `linear-gradient(120deg, ${primaryColor}, ${secondaryColor})`,
+                }}
+              >
+                <h2 className="text-2xl sm:text-3xl" style={{ fontFamily: "Georgia, serif" }}>
+                  {block.title}
+                </h2>
+                {block.subtitle ? (
+                  <p className="mx-auto mt-3 max-w-xl text-sm text-white/90">{block.subtitle}</p>
+                ) : null}
+                <a
+                  href="#richiedi"
+                  className="mt-6 inline-flex min-h-12 items-center rounded-full bg-white px-6 py-3 text-sm font-semibold"
+                  style={{ color: primaryColor }}
+                >
+                  {block.ctaLabel || ctaLabel || "Continua"}
+                </a>
+              </section>
+            );
+          }
+
           if (block.type === "faq") {
             return (
               <section key={i} className="mb-14 space-y-3">

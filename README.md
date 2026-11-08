@@ -35,6 +35,7 @@ npx prisma migrate deploy
 npm run db:seed
 npm run test:landing
 npm run test:inbox
+npm run test:social
 npm run dev
 ```
 
@@ -53,3 +54,8 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 - `/app/inbox` — DM + commenti (IG/FB) + WhatsApp + mail sandbox
 - «Carica sandbox» se seed già fatto; reply simulata senza token Meta
 - Thread collegati a lead in pipeline
+
+### Social planner
+
+- `/app/social` — calendario settimana, draft/schedule/publish sandbox
+- Piattaforme: Facebook, Instagram, TikTok, LinkedIn · tipi Post + Story

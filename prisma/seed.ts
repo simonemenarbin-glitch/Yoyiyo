@@ -19,6 +19,7 @@ async function main() {
   await prisma.practiceLine.deleteMany();
   await prisma.practice.deleteMany();
   await prisma.lead.deleteMany();
+  await prisma.socialPost.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
   await prisma.ratePlan.deleteMany();
@@ -669,6 +670,69 @@ async function main() {
   const { syncSandboxInbox } = await import("../src/lib/inbox/sandbox-sync");
   const inboxSync = await syncSandboxInbox(prisma, org.id);
 
+  const inTwoHours = new Date(Date.now() + 2 * 3600_000);
+  const tomorrow = new Date(Date.now() + 26 * 3600_000);
+  await prisma.socialPost.createMany({
+    data: [
+      {
+        organizationId: org.id,
+        brandId: yoyiyoBrand.id,
+        campaignId: yoyiyoCampaign.id,
+        platform: "META_INSTAGRAM",
+        contentType: "POST",
+        status: "SCHEDULED",
+        title: "IG · Cina Classic",
+        body: "Ipotesi di land su misura — non un programma chiuso. Link in bio.",
+        linkUrl: "/s/yoyiyo/cina-classic",
+        scheduledAt: inTwoHours,
+        extrasJson: JSON.stringify({ hashtags: ["#cina", "#yoyiyo"] }),
+      },
+      {
+        organizationId: org.id,
+        brandId: yoyiyoBrand.id,
+        platform: "META_INSTAGRAM",
+        contentType: "STORY",
+        status: "DRAFT",
+        title: "Story teaser Muraglia",
+        body: "Pechino → Muraglia. Story sandbox.",
+        mediaCaption: "Muraglia",
+      },
+      {
+        organizationId: org.id,
+        brandId: cigBrand.id,
+        platform: "TIKTOK",
+        contentType: "POST",
+        status: "SCHEDULED",
+        title: "TikTok groupage",
+        body: "Groupage Cina >20 pax · acconto 10% · release 120 giorni.",
+        linkUrl: "/s/cina-in-gruppo/home",
+        scheduledAt: tomorrow,
+      },
+      {
+        organizationId: org.id,
+        brandId: yoyiyoBrand.id,
+        platform: "LINKEDIN",
+        contentType: "POST",
+        status: "DRAFT",
+        title: "LinkedIn B2B partner",
+        body: "Agenzie: net e promoter sul portale Yoyiyo.",
+        linkUrl: "/s/yoyiyo/partner",
+      },
+      {
+        organizationId: org.id,
+        brandId: yoyiyoBrand.id,
+        platform: "META_FACEBOOK",
+        contentType: "STORY",
+        status: "PUBLISHED",
+        title: "FB Story demo",
+        body: "Story Facebook già pubblicata (sandbox).",
+        publishedAt: new Date(Date.now() - 3600_000),
+        providerPostId: "sandbox-fb-story-seed",
+        lastError: "Sandbox META_FACEBOOK story: nessun token live usato.",
+      },
+    ],
+  });
+
   await prisma.auditLog.create({
     data: {
       organizationId: org.id,
@@ -677,10 +741,11 @@ async function main() {
       entityType: "Organization",
       entityId: org.id,
       metaJson: JSON.stringify({
-        message: "Demo Brand hub + CRM sync canali → pipeline → preventivo + inbox sandbox",
+        message: "Demo Brand hub + inbox + social scheduler sandbox",
         imapReady: Boolean(imapPass),
         publicLanding: "/s/yoyiyo/cina-classic",
         inbox: inboxSync,
+        socialPosts: 5,
       }),
     },
   });

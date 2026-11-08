@@ -60,9 +60,9 @@
 
 ## Fase 3 — CRM omnicanale
 
-- [ ] Inbox unificata email/WhatsApp
-- [ ] Thread → lead → preventivo automatico
-- [ ] Note e timeline cliente
+- [x] Inbox unificata DM + commenti + mail (sandbox Meta/WA/IMAP) `/app/inbox`
+- [x] Thread → lead pipeline + reply simulata
+- [ ] Note e timeline cliente avanzata
 
 ## Fase 4 — Growth
 

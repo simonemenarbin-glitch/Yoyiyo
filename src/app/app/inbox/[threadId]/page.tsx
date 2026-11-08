@@ -6,6 +6,7 @@ import { StatusPill } from "@/components/StatusPill";
 import {
   markThreadRead,
   replyInboxThread,
+  runInboxCommercialAi,
   setThreadStatus,
 } from "@/lib/actions/inbox";
 import { conversationKindLabel } from "@/lib/inbox/types";
@@ -124,6 +125,26 @@ export default async function InboxThreadPage({
           Invio fallito (manca token live?). Usa la risposta sandbox.
         </div>
       ) : null}
+      {sp.ai === "1" ? (
+        <FlashOk>
+          AI commerciale: {sp.decision === "READY_TO_QUOTE" ? "dati ok" : "servono info"}
+          {sp.quote ? (
+            <>
+              {" "}
+              ·{" "}
+              <Link href={`/app/preventivi/${sp.quote}`} className="font-semibold underline">
+                apri preventivo
+              </Link>
+            </>
+          ) : null}
+          {sp.missing ? <> · mancano: {sp.missing}</> : null}
+        </FlashOk>
+      ) : null}
+      {sp.ai === "fail" ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
+          AI commerciale: thread senza lead collegato.
+        </div>
+      ) : null}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <SectionCard title="Thread" hint="Messaggi in ordine cronologico.">
@@ -187,6 +208,16 @@ export default async function InboxThreadPage({
         </SectionCard>
 
         <aside className="space-y-4">
+          <SectionCard title="AI commerciale" hint="Parse thread → pipeline → preventivo o bozza dati mancanti.">
+            <form action={runInboxCommercialAi}>
+              <input type="hidden" name="threadId" value={thread.id} />
+              <button className={btnPrimary}>Analizza e aggiorna lead</button>
+            </form>
+            <p className="mt-2 text-xs text-slate-500">
+              Offline: usa intake/auto-quote esistenti. Nessuna API LLM obbligatoria.
+            </p>
+          </SectionCard>
+
           <SectionCard title="Stato thread">
             <form action={setThreadStatus} className="space-y-2">
               <input type="hidden" name="threadId" value={thread.id} />

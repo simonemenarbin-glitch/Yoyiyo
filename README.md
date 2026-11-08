@@ -37,6 +37,7 @@ npm run test:landing
 npm run test:inbox
 npm run test:social
 npm run test:growth
+npm run test:ai
 npm run dev
 ```
 
@@ -64,3 +65,7 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 ### Growth hub
 
 - `/app/growth` — campagne ads stub, SEO checklist landing, liste AI sul CRM
+
+### AI commerciale (inbox)
+
+- Sul thread `/app/inbox/[id]` → «Analizza e aggiorna lead» (parse → pipeline → auto-preventivo)

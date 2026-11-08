@@ -133,6 +133,19 @@ enum MessageSendStatus {
   LOGGED
 }
 
+enum ConversationKind {
+  DM
+  COMMENT
+  EMAIL
+  WEB
+}
+
+enum InboxThreadStatus {
+  OPEN
+  PENDING
+  CLOSED
+}
+
 enum ClientType {
   B2C
   B2B
@@ -219,6 +232,7 @@ model Organization {
   campaigns    Campaign[]
   sites        BrandSite[]
   suppliers    SupplierConnector[]
+  inboxThreads InboxThread[]
 }
 
 model SupplierConnector {
@@ -265,26 +279,64 @@ model ChannelConnection {
   organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   messages     IngestedMessage[]
   threadMsgs   ConversationMessage[]
+  inboxThreads InboxThread[]
 
   @@index([organizationId, enabled])
   @@unique([organizationId, label])
+}
+
+model InboxThread {
+  id               String            @id @default(cuid())
+  organizationId   String
+  connectionId     String?
+  leadId           String?
+  brandId          String?
+  source           LeadSource
+  kind             ConversationKind  @default(DM)
+  status           InboxThreadStatus @default(OPEN)
+  externalThreadId String
+  contactName      String?
+  contactHandle    String?
+  subject          String?
+  lastBody         String?
+  lastAt           DateTime?
+  unreadCount      Int               @default(0)
+  permalink        String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  connection   ChannelConnection?    @relation(fields: [connectionId], references: [id], onDelete: SetNull)
+  lead         Lead?                 @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  brand        Brand?                @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  messages     ConversationMessage[]
+
+  @@unique([organizationId, externalThreadId])
+  @@index([organizationId, status, lastAt])
+  @@index([organizationId, source, kind])
+  @@index([organizationId, leadId])
 }
 
 model ConversationMessage {
   id             String            @id @default(cuid())
   organizationId String
   leadId         String
+  threadId       String?
   connectionId   String?
   userId         String?
   direction      MessageDirection
   source         LeadSource
   channelKind    ChannelKind?
+  kind           ConversationKind  @default(DM)
   status         MessageSendStatus @default(LOGGED)
+  unread         Boolean           @default(false)
   toAddress      String?
   fromAddress    String?
   subject        String?
   body           String
   providerId     String?
+  externalId     String?
+  permalink      String?
   errorText      String?
   ingestedId     String?
   sentAt         DateTime?
@@ -293,11 +345,14 @@ model ConversationMessage {
 
   organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   lead         Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  thread       InboxThread?       @relation(fields: [threadId], references: [id], onDelete: SetNull)
   connection   ChannelConnection? @relation(fields: [connectionId], references: [id], onDelete: SetNull)
   user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([leadId, createdAt])
   @@index([organizationId, direction])
+  @@index([threadId, createdAt])
+  @@index([organizationId, unread])
 }
 
 model IngestedMessage {
@@ -354,6 +409,7 @@ model Brand {
   customers    Customer[]   @relation("CustomerPreferredBrand")
   campaigns    Campaign[]
   sites        BrandSite[]
+  inboxThreads InboxThread[]
 
   @@unique([organizationId, slug])
 }
@@ -539,6 +595,7 @@ model Lead {
   quotes       Quote[]
   ingestions   IngestedMessage[]
   messages     ConversationMessage[]
+  inboxThreads InboxThread[]
 
   @@index([organizationId, pipelineStage])
   @@index([organizationId, source])

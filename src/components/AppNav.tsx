@@ -7,11 +7,12 @@ import { useEffect, useState } from "react";
 const primary = [
   { href: "/app", label: "Home", match: (p: string) => p === "/app" },
   { href: "/app/crm", label: "Pipeline", match: (p: string) => p.startsWith("/app/crm") && !p.startsWith("/app/crm/canali") },
-  { href: "/app/crm/canali", label: "Aggiorna", match: (p: string) => p.startsWith("/app/crm/canali") },
+  { href: "/app/inbox", label: "Inbox", match: (p: string) => p.startsWith("/app/inbox") },
   { href: "/app/landing", label: "Landing", match: (p: string) => p.startsWith("/app/landing") },
 ];
 
 const more = [
+  { href: "/app/crm/canali", label: "Canali" },
   { href: "/app/marchi", label: "Marchi" },
   { href: "/app/preventivi", label: "Preventivi" },
   { href: "/app/pratiche", label: "Pratiche" },
@@ -103,8 +104,8 @@ export function MobileBottomNav() {
                   ? "⌂"
                   : item.label === "Pipeline"
                     ? "☰"
-                    : item.label === "Aggiorna"
-                      ? "↻"
+                    : item.label === "Inbox"
+                      ? "✉"
                       : item.label === "Landing"
                         ? "▣"
                         : "◆"}

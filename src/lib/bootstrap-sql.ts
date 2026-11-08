@@ -617,6 +617,32 @@ export const UPGRADE_SQL = [
     CONSTRAINT "PracticeDocument_practiceId_fkey" FOREIGN KEY ("practiceId") REFERENCES "Practice" ("id") ON DELETE CASCADE ON UPDATE CASCADE
   )`,
   `CREATE INDEX IF NOT EXISTS "PracticeDocument_practiceId_type_idx" ON "PracticeDocument"("practiceId", "type")`,
+  `CREATE TABLE IF NOT EXISTS "InboxThread" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "connectionId" TEXT,
+    "leadId" TEXT,
+    "brandId" TEXT,
+    "source" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'DM',
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "externalThreadId" TEXT NOT NULL,
+    "contactName" TEXT,
+    "contactHandle" TEXT,
+    "subject" TEXT,
+    "lastBody" TEXT,
+    "lastAt" DATETIME,
+    "unreadCount" INTEGER NOT NULL DEFAULT 0,
+    "permalink" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "InboxThread_organizationId_externalThreadId_key" ON "InboxThread"("organizationId", "externalThreadId")`,
+  `CREATE INDEX IF NOT EXISTS "InboxThread_organizationId_status_lastAt_idx" ON "InboxThread"("organizationId", "status", "lastAt")`,
+  `CREATE INDEX IF NOT EXISTS "InboxThread_organizationId_source_kind_idx" ON "InboxThread"("organizationId", "source", "kind")`,
+  `CREATE INDEX IF NOT EXISTS "InboxThread_organizationId_leadId_idx" ON "InboxThread"("organizationId", "leadId")`,
+  `CREATE INDEX IF NOT EXISTS "ConversationMessage_threadId_createdAt_idx" ON "ConversationMessage"("threadId", "createdAt")`,
+  `CREATE INDEX IF NOT EXISTS "ConversationMessage_organizationId_unread_idx" ON "ConversationMessage"("organizationId", "unread")`,
 ];
 
 export const UPGRADE_ALTERS = [
@@ -663,4 +689,9 @@ export const UPGRADE_ALTERS = [
   { table: "Practice", column: "depositAmount", sql: `ALTER TABLE "Practice" ADD COLUMN "depositAmount" REAL NOT NULL DEFAULT 0` },
   { table: "Practice", column: "releaseDays", sql: `ALTER TABLE "Practice" ADD COLUMN "releaseDays" INTEGER NOT NULL DEFAULT 120` },
   { table: "Practice", column: "confirmedAt", sql: `ALTER TABLE "Practice" ADD COLUMN "confirmedAt" DATETIME` },
+  { table: "ConversationMessage", column: "threadId", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "threadId" TEXT` },
+  { table: "ConversationMessage", column: "kind", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "kind" TEXT NOT NULL DEFAULT 'DM'` },
+  { table: "ConversationMessage", column: "unread", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "unread" BOOLEAN NOT NULL DEFAULT false` },
+  { table: "ConversationMessage", column: "externalId", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "externalId" TEXT` },
+  { table: "ConversationMessage", column: "permalink", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "permalink" TEXT` },
 ];

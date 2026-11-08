@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.auditLog.deleteMany();
   await prisma.conversationMessage.deleteMany();
+  await prisma.inboxThread.deleteMany();
   await prisma.ingestedMessage.deleteMany();
   await prisma.channelConnection.deleteMany();
   await prisma.quoteLine.deleteMany();
@@ -665,6 +666,9 @@ async function main() {
     data: { leadsCount: 1, revenueAttributed: 0 },
   });
 
+  const { syncSandboxInbox } = await import("../src/lib/inbox/sandbox-sync");
+  const inboxSync = await syncSandboxInbox(prisma, org.id);
+
   await prisma.auditLog.create({
     data: {
       organizationId: org.id,
@@ -673,9 +677,10 @@ async function main() {
       entityType: "Organization",
       entityId: org.id,
       metaJson: JSON.stringify({
-        message: "Demo Brand hub + CRM sync canali → pipeline → preventivo",
+        message: "Demo Brand hub + CRM sync canali → pipeline → preventivo + inbox sandbox",
         imapReady: Boolean(imapPass),
         publicLanding: "/s/yoyiyo/cina-classic",
+        inbox: inboxSync,
       }),
     },
   });

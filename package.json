@@ -10,7 +10,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
-    "test:landing": "npx tsx scripts/test_landing_builder.ts"
+    "test:landing": "npx tsx scripts/test_landing_builder.ts",
+    "test:inbox": "npx tsx scripts/test_inbox_sandbox.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

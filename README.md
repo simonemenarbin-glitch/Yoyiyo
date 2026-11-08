@@ -34,6 +34,7 @@ npm install
 npx prisma migrate deploy
 npm run db:seed
 npm run test:landing
+npm run test:inbox
 npm run dev
 ```
 
@@ -46,3 +47,9 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 - Hub: `/app/landing` — template LeadConnector-style per brand
 - Editor: `/app/marchi/[id]/siti/[siteId]` — testi + anteprima + pubblica
 - Pubblico: `/s/yoyiyo/cina-classic`, `/s/yoyiyo/partner`, `/s/cina-in-gruppo/home`
+
+### Inbox unificata
+
+- `/app/inbox` — DM + commenti (IG/FB) + WhatsApp + mail sandbox
+- «Carica sandbox» se seed già fatto; reply simulata senza token Meta
+- Thread collegati a lead in pipeline

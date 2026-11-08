@@ -93,7 +93,7 @@ export default async function GrowthHubPage({
     <div className="space-y-5">
       <PageHeader
         title="Growth hub"
-        description={`Ads stub · SEO landing · liste AI sul CRM (${leadCount} lead). Offline, senza token Meta Ads.`}
+        description={`Campagne ads, SEO landing e liste AI sul CRM (${leadCount} lead). Modalità demo, senza account ads live.`}
         actions={
           <>
             <Link href="/app/social" className={btnSecondary}>
@@ -132,8 +132,8 @@ export default async function GrowthHubPage({
 
       <SectionCard
         id="ads"
-        title="Campagne ads (stub)"
-        hint="Traccia budget/spend/UTM e collega liste audience. Nessuna chiamata live ad account."
+        title="Campagne ads"
+        hint="Traccia budget, spend e UTM e collega liste audience. In demo non chiama account ads live."
       >
         <form action={upsertAdsCampaign} className="grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
@@ -199,7 +199,7 @@ export default async function GrowthHubPage({
           <input type="hidden" name="utmMedium" value="cpc" />
           <input type="hidden" name="status" value="DRAFT" />
           <input type="hidden" name="objective" value="leads" />
-          <button className={`${btnPrimary} sm:col-span-2 sm:w-fit`}>Crea campagna stub</button>
+          <button className={`${btnPrimary} sm:col-span-2 sm:w-fit`}>Crea campagna</button>
         </form>
 
         <div className="mt-4 space-y-2">
@@ -359,7 +359,7 @@ export default async function GrowthHubPage({
                   key={l.id}
                   className={`rounded-xl border px-3 py-2 text-sm ${
                     focusList?.id === l.id
-                      ? "border-[#B33A2B]/40 bg-[#B33A2B]/5"
+                      ? "border-[#0F3D3E]/40 bg-[#0F3D3E]/5"
                       : "border-teal-900/10 bg-white"
                   }`}
                 >

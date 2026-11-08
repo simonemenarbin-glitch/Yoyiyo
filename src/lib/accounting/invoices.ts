@@ -172,6 +172,6 @@ ${input.regime === "MARGIN_74TER" ? `<li>Base margine 74-ter: ${esc(fmt(input.ma
 <li><strong>Totale documento: ${esc(fmt(input.total))}</strong></li>
 </ul>
 ${input.notes ? `<p>${esc(input.notes)}</p>` : ""}
-<p style="font-size:9pt;color:#555">Documento Rotta ERP · stub contabile offline (nessuna SdI live).</p>
+<p style="font-size:9pt;color:#555">Documento Rotta ERP · modalità demo (nessuna SdI live).</p>
 </body></html>`;
 }

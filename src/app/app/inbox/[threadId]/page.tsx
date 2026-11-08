@@ -107,7 +107,7 @@ export default async function InboxThreadPage({
 
       {sp.send === "ok" ? (
         <FlashOk>
-          Risposta {sp.sim === "1" ? "simulata (sandbox)" : "inviata"} e collegata al lead.
+          Risposta {sp.sim === "1" ? "simulata (demo)" : "inviata"} e collegata al lead.
         </FlashOk>
       ) : null}
       {sp.send === "empty" ? (
@@ -122,7 +122,7 @@ export default async function InboxThreadPage({
       ) : null}
       {sp.send === "fail" ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm">
-          Invio fallito (manca token live?). Usa la risposta sandbox.
+          Invio fallito (canale non configurato). Usa la risposta demo.
         </div>
       ) : null}
       {sp.ai === "1" ? (
@@ -195,7 +195,7 @@ export default async function InboxThreadPage({
             <label className="flex items-start gap-2 text-sm text-slate-700">
               <input type="checkbox" name="confirmSend" value="1" className="mt-1" required />
               <span>
-                Confermo l’invio. Di default è <strong>sandbox simulato</strong> (nessuna chiave
+                Confermo l’invio. Di default è <strong>simulato in demo</strong> (nessuna chiave
                 Meta/WA richiesta).
               </span>
             </label>
@@ -203,7 +203,7 @@ export default async function InboxThreadPage({
               <input type="checkbox" name="live" value="1" className="mt-1" />
               <span>Prova invio live se il canale ha token (opzionale).</span>
             </label>
-            <button className={btnPrimary}>Invia risposta (sandbox)</button>
+            <button className={btnPrimary}>Invia risposta (demo)</button>
           </form>
         </SectionCard>
 

@@ -189,7 +189,7 @@ export default async function CustomerDetailPage({
               </option>
             ))}
           </select>
-          <button className="rounded-xl bg-[#B33A2B] px-4 py-2 text-sm text-white sm:col-span-3 sm:w-fit">
+          <button className="rounded-xl bg-[#0F3D3E] px-4 py-2 text-sm text-white sm:col-span-3 sm:w-fit">
             Apri nuova pipeline
           </button>
         </form>

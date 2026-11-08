@@ -11,7 +11,7 @@ import {
   sitePageTypeLabel,
 } from "@/lib/labels";
 import {
-  EmptyHint,
+  EmptyState,
   PageHeader,
   SectionCard,
   btnPrimary,
@@ -56,10 +56,19 @@ export default async function LandingHubPage() {
 
       <SectionCard
         title="Crea da template"
-        hint="Scegli brand + template: editor e publish restano offline (nessuna chiave Meta)."
+        hint="Scegli brand + template: crea, modifica e pubblica senza chiavi Meta."
       >
         {brands.length === 0 ? (
-          <EmptyHint>Crea prima un marchio in Marchi.</EmptyHint>
+          <EmptyState
+            title="Nessun marchio"
+            action={
+              <Link href="/app/marchi" className={btnPrimary}>
+                Vai a Marchi
+              </Link>
+            }
+          >
+            Crea un marchio prima di pubblicare una landing.
+          </EmptyState>
         ) : (
           <form action={createBrandSite} className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm">
@@ -110,9 +119,9 @@ export default async function LandingHubPage() {
       </SectionCard>
 
       {allSites.length === 0 ? (
-        <EmptyHint>
-          Nessuna landing ancora. Usa un template qui sopra oppure apri un marchio → Siti.
-        </EmptyHint>
+        <EmptyState title="Nessuna landing ancora">
+          Usa un template qui sopra, oppure apri un marchio → Siti.
+        </EmptyState>
       ) : (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">

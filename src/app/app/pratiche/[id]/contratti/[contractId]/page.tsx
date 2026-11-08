@@ -60,7 +60,7 @@ export default async function PracticeContractPage({
               <form action={sendContractForSignature}>
                 <input type="hidden" name="id" value={contract.id} />
                 <button className={btnPrimary}>
-                  {contract.status === "DRAFT" ? "Invia per firma (stub)" : "Reinvia link stub"}
+                  {contract.status === "DRAFT" ? "Invia per firma" : "Reinvia link firma"}
                 </button>
               </form>
             )}
@@ -70,7 +70,7 @@ export default async function PracticeContractPage({
 
       {sp.sent ? (
         <FlashOk>
-          Inviato in sandbox. Condividi{" "}
+          Link di firma pronto. Condividi{" "}
           <a href={publicUrl} className="font-semibold underline">
             {publicUrl}
           </a>

@@ -108,14 +108,14 @@ export default async function CrmPipelinePage({
         description="Filtra, apri un lead, invia risposte. Un cliente può avere più pipeline aperte."
         actions={
           <>
-            <Link href="/app/crm/canali" className={btnPrimary}>
-              Aggiorna canali
-            </Link>
-            <Link href="/app/crm/nuovo" className={btnSecondary}>
+            <Link href="/app/crm/nuovo" className={btnPrimary}>
               Nuovo lead
             </Link>
             <Link href="/app/crm/intake" className={btnSecondary}>
               Incolla messaggio
+            </Link>
+            <Link href="/app/crm/canali" className={btnSecondary}>
+              Canali
             </Link>
           </>
         }

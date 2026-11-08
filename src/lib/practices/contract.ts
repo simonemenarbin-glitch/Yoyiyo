@@ -48,7 +48,7 @@ function shell(title: string, body: string) {
 </head>
 <body>
 ${body}
-<p class="foot">Contratto generato da Rotta ERP · firma elettronica in modalità sandbox (nessun provider live).</p>
+<p class="foot">Contratto generato da Rotta ERP · firma elettronica in modalità demo.</p>
 </body>
 </html>`;
 }
@@ -111,7 +111,7 @@ export function buildContractHtml(
 
   <h2>FIRMA</h2>
   <div class="sign">
-    <p>Il contraente dichiara di aver letto condizioni e penali e di accettare il contratto in firma elettronica sandbox.</p>
+    <p>Il contraente dichiara di aver letto condizioni e penali e di accettare il contratto in firma elettronica.</p>
     <p><strong>Firmatario</strong>: ${esc(guest)}</p>
     <p><strong>Data</strong>: __________________ &nbsp;&nbsp; <strong>Firma</strong>: __________________</p>
   </div>

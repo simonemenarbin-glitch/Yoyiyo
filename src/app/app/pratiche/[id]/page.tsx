@@ -327,14 +327,14 @@ export default async function PracticeDetailPage({
           <div>
             <h2 className="font-semibold text-[#0F3D3E]">Contratto + firma</h2>
             <p className="mt-1 text-xs text-slate-500">
-              Conferma pratica → contratto HTML (stampa PDF/Word) → e-sign sandbox.
+              Conferma pratica → contratto HTML (stampa PDF/Word) → firma elettronica.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <form action={createPracticeContract}>
               <input type="hidden" name="practiceId" value={practice.id} />
               <input type="hidden" name="confirmPractice" value="1" />
-              <button className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white">
+              <button className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-semibold text-white">
                 Genera contratto
               </button>
             </form>
@@ -344,7 +344,7 @@ export default async function PracticeDetailPage({
               <input type="hidden" name="regime" value="MARGIN_74TER" />
               <input type="hidden" name="status" value="ISSUED" />
               <button className="rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-medium text-[#0F3D3E]">
-                Fattura AR 74-ter
+                Fattura cliente 74-ter
               </button>
             </form>
             <form action={createInvoice}>

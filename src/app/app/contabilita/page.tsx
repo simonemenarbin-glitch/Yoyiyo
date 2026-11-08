@@ -66,8 +66,8 @@ export default async function ContabilitaPage({
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Contabilità AR / AP"
-        description="Fatture clienti e fornitori (oltre 74-ter stub). Collegabili a pratiche e preventivi."
+        title="Fatture clienti e fornitori"
+        description="Incassi e pagamenti collegati a pratiche e preventivi. Supporto regime 74-ter sul margine."
         actions={
           <Link href="/app/pratiche" className={btnSecondary}>
             Pratiche
@@ -79,11 +79,11 @@ export default async function ContabilitaPage({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-teal-900/10 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-400">Da incassare (AR)</div>
+          <div className="text-xs uppercase tracking-wide text-slate-400">Da incassare (clienti)</div>
           <div className="mt-1 text-2xl font-semibold text-[#0F3D3E]">{eur(arOpen)}</div>
         </div>
         <div className="rounded-2xl border border-teal-900/10 bg-white p-4">
-          <div className="text-xs uppercase tracking-wide text-slate-400">Da pagare (AP)</div>
+          <div className="text-xs uppercase tracking-wide text-slate-400">Da pagare (fornitori)</div>
           <div className="mt-1 text-2xl font-semibold text-[#0F3D3E]">{eur(apOpen)}</div>
         </div>
       </div>
@@ -93,10 +93,10 @@ export default async function ContabilitaPage({
           Tutte
         </Link>
         <Link href="/app/contabilita?direction=AR" className={btnSecondary}>
-          Solo AR
+          Solo clienti
         </Link>
         <Link href="/app/contabilita?direction=AP" className={btnSecondary}>
-          Solo AP
+          Solo fornitori
         </Link>
       </div>
 
@@ -105,8 +105,8 @@ export default async function ContabilitaPage({
           <label className="block text-sm">
             <span className="mb-1.5 block font-medium text-slate-700">Direzione</span>
             <select name="direction" defaultValue="AR" className={fieldClass}>
-              <option value="AR">Cliente (AR)</option>
-              <option value="AP">Fornitore (AP)</option>
+              <option value="AR">Cliente (da incassare)</option>
+              <option value="AP">Fornitore (da pagare)</option>
             </select>
           </label>
           <label className="block text-sm">
@@ -164,7 +164,10 @@ export default async function ContabilitaPage({
 
       <SectionCard title="Elenco" hint={`${invoices.length} documenti`}>
         {invoices.length === 0 ? (
-          <EmptyHint>Nessuna fattura. Creane una da pratica sopra.</EmptyHint>
+          <EmptyHint>
+            Nessuna fattura ancora. Compila il form sopra partendo da una pratica, oppure crea una
+            fattura manuale.
+          </EmptyHint>
         ) : (
           <ul className="divide-y divide-slate-100">
             {invoices.map((inv) => (

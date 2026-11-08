@@ -57,7 +57,7 @@ export default async function PublicSignPage({
 
         {sp.signed ? (
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
-            Contratto firmato in sandbox. Grazie.
+            Contratto firmato. Grazie.
           </div>
         ) : null}
         {sp.declined ? (
@@ -86,9 +86,9 @@ export default async function PublicSignPage({
 
         {!locked ? (
           <div className="rounded-2xl border border-teal-900/10 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#0F3D3E]">Firma elettronica (stub)</h2>
+            <h2 className="text-lg font-semibold text-[#0F3D3E]">Firma elettronica</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Nessun provider live (DocuSign/Yousign). Digita il nome per simulare la firma.
+              Modalità demo: digita il nome per confermare la firma (provider live in arrivo).
             </p>
             <form action={signContractStub} className="mt-4 space-y-3">
               <input type="hidden" name="token" value={token} />
@@ -105,7 +105,7 @@ export default async function PublicSignPage({
                 <input type="checkbox" name="accept" value="1" className="mt-1" required />
                 <span>Ho letto e accetto il contratto e le penali indicate.</span>
               </label>
-              <button className="inline-flex min-h-11 items-center rounded-xl bg-[#B33A2B] px-5 py-2.5 text-sm font-semibold text-white">
+              <button className="inline-flex min-h-11 items-center rounded-xl bg-[#0F3D3E] px-5 py-2.5 text-sm font-semibold text-white">
                 Firma ora
               </button>
             </form>

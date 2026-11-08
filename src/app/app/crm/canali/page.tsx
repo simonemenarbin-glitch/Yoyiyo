@@ -72,7 +72,7 @@ export default async function ChannelsPage({
             </button>
           </form>
           <form action={refreshAllChannels}>
-            <button className="rounded-xl bg-[#B33A2B] px-5 py-2.5 text-sm font-semibold text-white">
+            <button className="rounded-xl bg-[#0F3D3E] px-5 py-2.5 text-sm font-semibold text-white">
               Aggiorna
             </button>
           </form>

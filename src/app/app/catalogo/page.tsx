@@ -71,7 +71,7 @@ export default async function CatalogPage() {
           Listino servizi
         </h1>
         <p className="mt-1 text-slate-600">
-          Listino proprio oggi (OWN_LIST). Ogni prodotto ha già priceSource / supplierRef per le API fornitori.
+          Listino proprio. Ogni prodotto può collegarsi ai connettori fornitori quando disponibili.
         </p>
       </div>
 

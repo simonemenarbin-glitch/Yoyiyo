@@ -8,7 +8,7 @@ import { ensureDefaultConnectors } from "@/lib/suppliers/registry";
 
 const kindLabel: Record<string, string> = {
   OWN_LIST: "Listino proprio",
-  MOCK_DMC: "API demo / sandbox",
+  MOCK_DMC: "API demo",
   TRAVIO: "Travio",
   NETSTORMING: "NetStorming",
   HOTELSTON: "Hotelston",
@@ -47,7 +47,7 @@ export default async function FornitoriPage() {
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-600">
           Listino proprio sempre disponibile. I connettori API (Travio, Hotelston, …) si cercano dal
-          preventivo; senza credenziali usano sandbox demo. Nessun secret in repo.
+          preventivo; senza credenziali usano dati demo. Nessun secret in repo.
         </p>
       </div>
 

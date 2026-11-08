@@ -73,7 +73,8 @@ export default async function SocialSchedulerPage({
 
   const defaultBrandId = brands[0]?.id || "";
   const localScheduledDefault = (() => {
-    const d = new Date(Date.now() + 2 * 3600_000);
+    // Derivato da weekStart (già stabile per request) + 2h, non da Date.now() in render.
+    const d = new Date(weekStart.getTime() + 2 * 3600_000);
     d.setMinutes(0, 0, 0);
     const pad = (n: number) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -83,7 +84,7 @@ export default async function SocialSchedulerPage({
     <div className="space-y-5">
       <PageHeader
         title="Social planner"
-        description="Post e Stories su Meta (FB/IG), TikTok e LinkedIn — draft / schedule / publish sandbox (nessuna chiave live)."
+        description="Post e Stories su Meta (FB/IG), TikTok e LinkedIn — bozza, programma e pubblica in modalità demo."
         actions={
           <>
             <Link href="/app/landing" className={btnSecondary}>
@@ -98,7 +99,7 @@ export default async function SocialSchedulerPage({
       />
 
       {sp.saved ? <FlashOk>Salvato.</FlashOk> : null}
-      {sp.published ? <FlashOk>Pubblicato in sandbox.</FlashOk> : null}
+      {sp.published ? <FlashOk>Pubblicato (demo).</FlashOk> : null}
       {sp.queue_ok != null ? (
         <FlashOk>
           Coda: {sp.queue_ok} ok · {sp.queue_fail || 0} errori.
@@ -165,7 +166,7 @@ export default async function SocialSchedulerPage({
       </SectionCard>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <SectionCard title="Nuovo post / story" hint="Salva bozza o programma. Publish usa adapter sandbox.">
+        <SectionCard title="Nuovo post / story" hint="Salva bozza o programma. La pubblicazione usa la modalità demo.">
           {brands.length === 0 ? (
             <EmptyHint>Crea prima un marchio.</EmptyHint>
           ) : (
@@ -269,7 +270,7 @@ export default async function SocialSchedulerPage({
                   key={p.id}
                   id={`post-${p.id}`}
                   className={`rounded-2xl border px-4 py-3 ${
-                    sp.focus === p.id ? "border-[#B33A2B]/40 bg-[#B33A2B]/5" : "border-teal-900/10 bg-white"
+                    sp.focus === p.id ? "border-[#0F3D3E]/40 bg-[#0F3D3E]/5" : "border-teal-900/10 bg-white"
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">

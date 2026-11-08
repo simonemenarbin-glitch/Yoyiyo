@@ -280,7 +280,7 @@ export default async function QuoteDetailPage({
             <h2 className="font-semibold text-[#0F3D3E]">Cerca listino proprio + API fornitori</h2>
             <p className="mt-1 text-xs text-slate-500">
               Stesso flusso Medusa-style: ricerca multi-fonte, poi aggiungi la riga al preventivo.
-              Senza credenziali live i connettori esterni usano sandbox demo.
+              Senza credenziali live i connettori esterni usano dati demo.
             </p>
           </div>
         </div>

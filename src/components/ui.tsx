@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-/** Shared button / field classes — touch-friendly, same language ovunque. */
+/** Primary = teal scuro. Rosso solo per danger (btnDanger). */
 export const btnPrimary =
-  "inline-flex min-h-11 items-center justify-center rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-[#9a3225] disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-[#0c3233] disabled:opacity-50";
 
 export const btnSecondary =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#0F3D3E]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#0F3D3E] shadow-sm transition active:scale-[0.98] hover:bg-slate-50 disabled:opacity-50";
@@ -10,8 +10,11 @@ export const btnSecondary =
 export const btnGhost =
   "inline-flex min-h-11 items-center justify-center rounded-xl px-3 py-2 text-sm font-medium text-[#0F3D3E]/80 transition hover:bg-[#0F3D3E]/5";
 
-export const btnDark =
-  "inline-flex min-h-11 items-center justify-center rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition active:scale-[0.98] hover:bg-[#0c3233] disabled:opacity-50";
+/** @deprecated Usa btnPrimary (ora teal). Mantenuto per compat. */
+export const btnDark = btnPrimary;
+
+export const btnDanger =
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-800 shadow-sm transition active:scale-[0.98] hover:bg-red-100 disabled:opacity-50";
 
 export const fieldClass =
   "w-full min-h-11 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#0F3D3E]/40 focus:ring-2 focus:ring-[#0F3D3E]/15";
@@ -150,10 +153,40 @@ export function EmptyHint({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Empty state unificato: titolo + spiegazione + CTA opzionale. */
+export function EmptyState({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children?: React.ReactNode;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-teal-900/15 bg-slate-50/60 px-5 py-8 text-center">
+      <div className="text-base font-semibold text-[#0F3D3E]">{title}</div>
+      {children ? (
+        <div className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">{children}</div>
+      ) : null}
+      {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
+    </div>
+  );
+}
+
 export function FlashOk({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-teal-800/15 bg-teal-50 px-4 py-3 text-sm text-teal-900">
       {children}
     </div>
+  );
+}
+
+/** Badge discreto per ambienti demo / offline. */
+export function DemoBadge({ label = "Demo" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-50/90">
+      {label}
+    </span>
   );
 }

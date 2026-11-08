@@ -291,7 +291,7 @@ export default async function LeadDetailPage({
             </button>
             <button
               formAction={sendLeadReply}
-              className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-semibold text-white"
+              className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-semibold text-white"
             >
               Invia risposta
             </button>
@@ -334,7 +334,7 @@ export default async function LeadDetailPage({
           <div className="mt-4 flex flex-wrap gap-2">
             <form action={generateBaseQuoteFromLead}>
               <input type="hidden" name="leadId" value={lead.id} />
-              <button className="rounded-xl bg-[#B33A2B] px-4 py-2.5 text-sm font-medium text-white">
+              <button className="rounded-xl bg-[#0F3D3E] px-4 py-2.5 text-sm font-medium text-white">
                 Preventivo base automatico
               </button>
             </form>

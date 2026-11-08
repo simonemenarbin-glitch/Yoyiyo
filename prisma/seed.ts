@@ -20,6 +20,7 @@ async function main() {
   await prisma.practice.deleteMany();
   await prisma.lead.deleteMany();
   await prisma.socialPost.deleteMany();
+  await prisma.audienceList.deleteMany();
   await prisma.brandSite.deleteMany();
   await prisma.campaign.deleteMany();
   await prisma.ratePlan.deleteMany();
@@ -733,6 +734,69 @@ async function main() {
     ],
   });
 
+  const { parseAudiencePrompt, buildAudienceFromLeads } = await import(
+    "../src/lib/growth/ai-lists"
+  );
+  const adsCampaign = await prisma.campaign.create({
+    data: {
+      organizationId: org.id,
+      brandId: yoyiyoBrand.id,
+      name: "Meta leads Cina Classic (stub)",
+      channel: "ADS",
+      status: "LIVE",
+      goal: "Lead FIT da landing",
+      utmCampaign: "cina-classic-meta",
+      utmSource: "ads",
+      utmMedium: "cpc",
+      budget: 800,
+      spend: 120,
+      impressions: 14000,
+      clicks: 310,
+      extrasJson: JSON.stringify({
+        platform: "meta",
+        objective: "leads",
+        dailyBudget: 30,
+      }),
+    },
+  });
+
+  const allLeads = await prisma.lead.findMany({ where: { organizationId: org.id } });
+  const igPrompt = "Lead Instagram nuovi interessati a Pechino con email";
+  const igCriteria = parseAudiencePrompt(igPrompt);
+  igCriteria.brandId = yoyiyoBrand.id;
+  const igBuilt = buildAudienceFromLeads(allLeads, igCriteria);
+  await prisma.audienceList.create({
+    data: {
+      organizationId: org.id,
+      brandId: yoyiyoBrand.id,
+      campaignId: adsCampaign.id,
+      name: "IG Pechino email",
+      kind: "AI_SEGMENT",
+      description: `Generata da prompt: ${igPrompt}`,
+      criteriaJson: JSON.stringify(igCriteria),
+      memberCount: igBuilt.members.length,
+      membersJson: JSON.stringify(igBuilt.members),
+      lastBuiltAt: new Date(),
+    },
+  });
+
+  const groupPrompt = "Groupage >20 da Facebook o WhatsApp con telefono";
+  const groupCriteria = parseAudiencePrompt(groupPrompt);
+  const groupBuilt = buildAudienceFromLeads(allLeads, groupCriteria);
+  await prisma.audienceList.create({
+    data: {
+      organizationId: org.id,
+      brandId: cigBrand.id,
+      name: "Groupage social phone",
+      kind: "AI_SEGMENT",
+      description: `Generata da prompt: ${groupPrompt}`,
+      criteriaJson: JSON.stringify(groupCriteria),
+      memberCount: groupBuilt.members.length,
+      membersJson: JSON.stringify(groupBuilt.members),
+      lastBuiltAt: new Date(),
+    },
+  });
+
   await prisma.auditLog.create({
     data: {
       organizationId: org.id,
@@ -741,11 +805,13 @@ async function main() {
       entityType: "Organization",
       entityId: org.id,
       metaJson: JSON.stringify({
-        message: "Demo Brand hub + inbox + social scheduler sandbox",
+        message: "Demo Brand hub + inbox + social + growth ads/SEO/liste AI",
         imapReady: Boolean(imapPass),
         publicLanding: "/s/yoyiyo/cina-classic",
         inbox: inboxSync,
         socialPosts: 5,
+        adsCampaignId: adsCampaign.id,
+        audienceLists: 2,
       }),
     },
   });

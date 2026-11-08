@@ -667,6 +667,23 @@ export const UPGRADE_SQL = [
   `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_scheduledAt_idx" ON "SocialPost"("organizationId", "scheduledAt")`,
   `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_status_platform_idx" ON "SocialPost"("organizationId", "status", "platform")`,
   `CREATE INDEX IF NOT EXISTS "SocialPost_organizationId_brandId_idx" ON "SocialPost"("organizationId", "brandId")`,
+  `CREATE TABLE IF NOT EXISTS "AudienceList" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "organizationId" TEXT NOT NULL,
+    "brandId" TEXT,
+    "campaignId" TEXT,
+    "name" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'CRM_FILTER',
+    "description" TEXT,
+    "criteriaJson" TEXT,
+    "memberCount" INTEGER NOT NULL DEFAULT 0,
+    "membersJson" TEXT,
+    "lastBuiltAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "AudienceList_organizationId_kind_idx" ON "AudienceList"("organizationId", "kind")`,
+  `CREATE INDEX IF NOT EXISTS "AudienceList_organizationId_brandId_idx" ON "AudienceList"("organizationId", "brandId")`,
 ];
 
 export const UPGRADE_ALTERS = [
@@ -718,4 +735,5 @@ export const UPGRADE_ALTERS = [
   { table: "ConversationMessage", column: "unread", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "unread" BOOLEAN NOT NULL DEFAULT false` },
   { table: "ConversationMessage", column: "externalId", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "externalId" TEXT` },
   { table: "ConversationMessage", column: "permalink", sql: `ALTER TABLE "ConversationMessage" ADD COLUMN "permalink" TEXT` },
+  { table: "Campaign", column: "extrasJson", sql: `ALTER TABLE "Campaign" ADD COLUMN "extrasJson" TEXT` },
 ];

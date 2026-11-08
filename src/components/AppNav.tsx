@@ -13,6 +13,7 @@ const primary = [
 
 const more = [
   { href: "/app/social", label: "Social" },
+  { href: "/app/growth", label: "Growth" },
   { href: "/app/crm/canali", label: "Canali" },
   { href: "/app/marchi", label: "Marchi" },
   { href: "/app/preventivi", label: "Preventivi" },

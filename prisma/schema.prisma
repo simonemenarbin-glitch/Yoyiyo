@@ -253,8 +253,9 @@ model Organization {
   campaigns    Campaign[]
   sites        BrandSite[]
   suppliers    SupplierConnector[]
-  inboxThreads InboxThread[]
-  socialPosts  SocialPost[]
+  inboxThreads  InboxThread[]
+  socialPosts   SocialPost[]
+  audienceLists AudienceList[]
 }
 
 model SupplierConnector {
@@ -431,10 +432,18 @@ model Brand {
   customers    Customer[]   @relation("CustomerPreferredBrand")
   campaigns    Campaign[]
   sites        BrandSite[]
-  inboxThreads InboxThread[]
-  socialPosts  SocialPost[]
+  inboxThreads  InboxThread[]
+  socialPosts   SocialPost[]
+  audienceLists AudienceList[]
 
   @@unique([organizationId, slug])
+}
+
+enum AudienceListKind {
+  MANUAL
+  AI_SEGMENT
+  LOOKALIKE_STUB
+  CRM_FILTER
 }
 
 model Campaign {
@@ -454,20 +463,46 @@ model Campaign {
   clicks         Int             @default(0)
   leadsCount     Int             @default(0)
   revenueAttributed Float        @default(0)
+  /// Targeting / SEO snapshot / ad platform stubs (no secrets)
+  extrasJson     String?
   startAt        DateTime?
   endAt          DateTime?
   notes          String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  leads        Lead[]
-  sites        BrandSite[]
-  socialPosts  SocialPost[]
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand         Brand         @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  leads         Lead[]
+  sites         BrandSite[]
+  socialPosts   SocialPost[]
+  audienceLists AudienceList[]
 
   @@index([organizationId, brandId])
   @@index([organizationId, status])
+}
+
+model AudienceList {
+  id             String           @id @default(cuid())
+  organizationId String
+  brandId        String?
+  campaignId     String?
+  name           String
+  kind           AudienceListKind @default(CRM_FILTER)
+  description    String?
+  criteriaJson   String?
+  memberCount    Int              @default(0)
+  membersJson    String?
+  lastBuiltAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?       @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  campaign     Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, kind])
+  @@index([organizationId, brandId])
 }
 
 model SocialPost {

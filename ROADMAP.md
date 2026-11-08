@@ -68,7 +68,7 @@
 
 - [x] Landing builder + publish per brand (template hub `/app/landing`, anteprima, clone)
 - [x] Social planner post/stories Meta+TikTok+LinkedIn sandbox `/app/social`
-- [ ] Campagne email/social (ads hub)
+- [x] Growth hub ads stub + SEO checklist + liste AI `/app/growth`
 - [ ] Reporting margini per brand/canale
 - [ ] AI quotazioni / import contratti
 

@@ -36,6 +36,7 @@ npm run db:seed
 npm run test:landing
 npm run test:inbox
 npm run test:social
+npm run test:growth
 npm run dev
 ```
 
@@ -59,3 +60,7 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 
 - `/app/social` — calendario settimana, draft/schedule/publish sandbox
 - Piattaforme: Facebook, Instagram, TikTok, LinkedIn · tipi Post + Story
+
+### Growth hub
+
+- `/app/growth` — campagne ads stub, SEO checklist landing, liste AI sul CRM

@@ -5,6 +5,7 @@ import type { InboxThreadStatus } from "@prisma/client";
 import { getCurrentUser, primaryMembership } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { syncSandboxInbox } from "@/lib/inbox/sandbox-sync";
+import { runCommercialAiOnLeadThread } from "@/lib/intake/from-inbox";
 import {
   defaultReplySubject,
   pickReplyAddress,
@@ -72,6 +73,43 @@ export async function setThreadStatus(formData: FormData) {
     data: { status },
   });
   redirect(`/app/inbox/${threadId}`);
+}
+
+/** AI commerciale: parse thread → update pipeline → auto-preventivo se READY. */
+export async function runInboxCommercialAi(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const membership = primaryMembership(user)!;
+  const orgId = membership.organizationId;
+  const threadId = String(formData.get("threadId") || "");
+
+  const result = await runCommercialAiOnLeadThread({
+    organizationId: orgId,
+    userId: user.id,
+    threadId,
+    autoQuote: true,
+  });
+
+  if (!result) redirect(`/app/inbox/${threadId}?ai=fail`);
+
+  await prisma.auditLog.create({
+    data: {
+      organizationId: orgId,
+      userId: user.id,
+      action: "AI_COMMERCIALE_INBOX",
+      entityType: "InboxThread",
+      entityId: threadId,
+      metaJson: JSON.stringify(result),
+    },
+  });
+
+  const q = new URLSearchParams({
+    ai: "1",
+    decision: result.decision,
+    quote: result.quoteId || "",
+    missing: result.missing.join(","),
+  });
+  redirect(`/app/inbox/${threadId}?${q.toString()}`);
 }
 
 /** Reply from unified inbox — defaults to sandbox simulate (no live Meta keys). */

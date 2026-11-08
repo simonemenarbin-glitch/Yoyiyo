@@ -68,14 +68,19 @@ export function SectionCard({
   hint,
   children,
   action,
+  id,
 }: {
   title?: string;
   hint?: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="rounded-2xl border border-teal-900/10 bg-white/90 p-4 shadow-[0_8px_24px_rgba(15,61,62,0.05)] sm:p-5">
+    <section
+      id={id}
+      className="scroll-mt-24 rounded-2xl border border-teal-900/10 bg-white/90 p-4 shadow-[0_8px_24px_rgba(15,61,62,0.05)] sm:p-5"
+    >
       {title ? (
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>

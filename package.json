@@ -12,7 +12,8 @@
     "db:reset": "prisma migrate reset --force",
     "test:landing": "npx tsx scripts/test_landing_builder.ts",
     "test:inbox": "npx tsx scripts/test_inbox_sandbox.ts",
-    "test:social": "npx tsx scripts/test_social_scheduler.ts"
+    "test:social": "npx tsx scripts/test_social_scheduler.ts",
+    "test:growth": "npx tsx scripts/test_growth_hub.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

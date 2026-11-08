@@ -61,6 +61,26 @@ enum ContractStatus {
   CANCELLED
 }
 
+enum InvoiceDirection {
+  AR
+  AP
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  SENT
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum InvoiceRegime {
+  STANDARD
+  MARGIN_74TER
+}
+
 enum QuoteStatus {
   DRAFT
   SENT
@@ -268,6 +288,7 @@ model Organization {
   socialPosts   SocialPost[]
   audienceLists AudienceList[]
   contracts     PracticeContract[]
+  invoices      Invoice[]
 }
 
 model SupplierConnector {
@@ -636,6 +657,7 @@ model Customer {
   practices      Practice[]
   quotes         Quote[]
   leads          Lead[]
+  invoices       Invoice[]
 
   @@index([organizationId, clientType])
 }
@@ -654,6 +676,7 @@ model AgencyPartner {
   practices    Practice[]
   quotes       Quote[]
   leads        Lead[]
+  invoices     Invoice[]
 }
 
 model Lead {
@@ -785,9 +808,55 @@ model Practice {
   changes      PracticeChange[]
   documents    PracticeDocument[]
   contracts    PracticeContract[]
+  invoices     Invoice[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])
+}
+
+/// Fatture clienti (AR) e fornitori (AP). Regime STANDARD o nota 74-ter (oltre stub SdI).
+model Invoice {
+  id               String           @id @default(cuid())
+  organizationId   String
+  direction        InvoiceDirection
+  status           InvoiceStatus    @default(DRAFT)
+  regime           InvoiceRegime    @default(STANDARD)
+  number           String
+  issueDate        DateTime         @default(now())
+  dueDate          DateTime?
+  practiceId       String?
+  quoteId          String?
+  customerId       String?
+  partnerId        String?
+  /// Controparte libera (utile per AP fornitore senza anagrafica)
+  counterpartyName String
+  counterpartyVat  String?
+  counterpartyEmail String?
+  currency         String           @default("EUR")
+  subtotal         Float            @default(0)
+  vatRate          Float            @default(22)
+  vatAmount        Float            @default(0)
+  total            Float            @default(0)
+  /// Solo se regime MARGIN_74TER: base imponibile = margine
+  marginBase       Float            @default(0)
+  costBase         Float            @default(0)
+  paidAmount       Float            @default(0)
+  paidAt           DateTime?
+  linesJson        String?
+  notes            String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  practice     Practice?      @relation(fields: [practiceId], references: [id], onDelete: SetNull)
+  quote        Quote?         @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  customer     Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  partner      AgencyPartner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, number])
+  @@index([organizationId, direction, status])
+  @@index([practiceId])
+  @@index([quoteId])
 }
 
 /// Contratto da conferma pratica + firma elettronica stub (nessun provider live).
@@ -916,6 +985,7 @@ model Quote {
   lead         Lead?          @relation(fields: [leadId], references: [id])
   lines        QuoteLine[]
   contracts    PracticeContract[]
+  invoices     Invoice[]
 
   @@unique([organizationId, number])
   @@index([organizationId, pipelineStage])

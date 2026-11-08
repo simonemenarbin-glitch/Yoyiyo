@@ -72,6 +72,11 @@
 - [ ] Reporting margini per brand/canale
 - [ ] AI quotazioni / import contratti
 
+## Fase 4.5 — Chiusura + contabilità
+
+- [x] Contratto da conferma + e-sign stub `/firma/[token]`
+- [x] Contabilità AR/AP fatture clienti/fornitori `/app/contabilita` (oltre 74-ter)
+
 ## Fase 5 — Enterprise
 
 - [ ] Postgres multi-tenant hardening

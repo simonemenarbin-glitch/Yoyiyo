@@ -15,6 +15,7 @@ async function main() {
   await prisma.ingestedMessage.deleteMany();
   await prisma.channelConnection.deleteMany();
   await prisma.quoteLine.deleteMany();
+  await prisma.invoice.deleteMany();
   await prisma.practiceContract.deleteMany();
   await prisma.practiceDocument.deleteMany();
   await prisma.practiceChange.deleteMany();
@@ -545,6 +546,76 @@ async function main() {
       bodyHtml: contractBuilt.bodyHtml,
       version: 1,
       generatedByUserId: user.id,
+    },
+  });
+
+  const { calcSeventyFourTer, calcStandardVat, sumLines, sumLineCosts } = await import(
+    "../src/lib/accounting/invoices"
+  );
+  const arLines = practiceFull.lines.map((l) => ({
+    description: l.title,
+    quantity: l.quantity,
+    unitPrice: l.sellPrice,
+    netCost: l.netCost,
+  }));
+  const arSell = sumLines(arLines);
+  const arCost = sumLineCosts(arLines);
+  const ar74 = calcSeventyFourTer({ totalSell: arSell, totalCost: arCost, vatRate: 22 });
+  await prisma.invoice.create({
+    data: {
+      organizationId: org.id,
+      direction: "AR",
+      status: "ISSUED",
+      regime: "MARGIN_74TER",
+      number: "FT-2026-0001",
+      issueDate: new Date(),
+      dueDate: new Date(Date.now() + 30 * 86400_000),
+      practiceId: practice.id,
+      quoteId: quote.id,
+      customerId: customer.id,
+      partnerId: partner.id,
+      counterpartyName: `${customer.firstName} ${customer.lastName}`,
+      counterpartyEmail: customer.email,
+      subtotal: ar74.subtotal,
+      vatRate: 22,
+      vatAmount: ar74.vatAmount,
+      total: ar74.total,
+      marginBase: ar74.marginBase,
+      costBase: ar74.costBase,
+      linesJson: JSON.stringify(arLines),
+      notes: "Seed AR 74-ter da pratica",
+    },
+  });
+
+  const apLines = [
+    {
+      description: "Costi land DMC (aggregato pratica)",
+      quantity: 1,
+      unitPrice: arCost,
+      netCost: arCost,
+    },
+  ];
+  const apStd = calcStandardVat(sumLines(apLines), 0);
+  await prisma.invoice.create({
+    data: {
+      organizationId: org.id,
+      direction: "AP",
+      status: "SENT",
+      regime: "STANDARD",
+      number: "FF-2026-0001",
+      issueDate: new Date(),
+      dueDate: new Date(Date.now() + 15 * 86400_000),
+      practiceId: practice.id,
+      partnerId: partner.id,
+      counterpartyName: partner.name || "Fornitore DMC",
+      counterpartyEmail: partner.email,
+      subtotal: apStd.subtotal,
+      vatRate: 0,
+      vatAmount: 0,
+      total: apStd.total,
+      costBase: arCost,
+      linesJson: JSON.stringify(apLines),
+      notes: "Seed AP costo fornitore collegato alla pratica",
     },
   });
 

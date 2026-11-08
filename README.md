@@ -38,6 +38,7 @@ npm run test:inbox
 npm run test:social
 npm run test:growth
 npm run test:ai
+npm run test:contract
 npm run dev
 ```
 
@@ -69,3 +70,8 @@ Demo: `demo@rotta.erp` / `rotta-demo`
 ### AI commerciale (inbox)
 
 - Sul thread `/app/inbox/[id]` → «Analizza e aggiorna lead» (parse → pipeline → auto-preventivo)
+
+### Contratto + e-sign
+
+- Pratica → «Genera contratto» → `/app/pratiche/[id]/contratti/[cid]`
+- Link pubblico sandbox `/firma/[token]` (invia / visualizza / firma / rifiuta)

@@ -48,6 +48,17 @@ enum PracticeDocType {
   VOUCHER
   FOGLIO_NOTIZIE
   CONFERMA
+  CONTRATTO
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  DECLINED
+  EXPIRED
+  CANCELLED
 }
 
 enum QuoteStatus {
@@ -247,15 +258,16 @@ model Organization {
   quotes       Quote[]
   leads        Lead[]
   auditLogs    AuditLog[]
-  channels     ChannelConnection[]
-  ingestions   IngestedMessage[]
-  messages     ConversationMessage[]
-  campaigns    Campaign[]
-  sites        BrandSite[]
-  suppliers    SupplierConnector[]
+  channels      ChannelConnection[]
+  ingestions    IngestedMessage[]
+  messages      ConversationMessage[]
+  campaigns     Campaign[]
+  sites         BrandSite[]
+  suppliers     SupplierConnector[]
   inboxThreads  InboxThread[]
   socialPosts   SocialPost[]
   audienceLists AudienceList[]
+  contracts     PracticeContract[]
 }
 
 model SupplierConnector {
@@ -772,9 +784,43 @@ model Practice {
   quotes       Quote[]
   changes      PracticeChange[]
   documents    PracticeDocument[]
+  contracts    PracticeContract[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])
+}
+
+/// Contratto da conferma pratica + firma elettronica stub (nessun provider live).
+model PracticeContract {
+  id               String         @id @default(cuid())
+  organizationId   String
+  practiceId       String
+  quoteId          String?
+  status           ContractStatus @default(DRAFT)
+  title            String
+  bodyHtml         String
+  version          Int            @default(1)
+  /// Public token for /firma/[token] sandbox signing page
+  signToken        String         @unique
+  signerName       String?
+  signerEmail      String?
+  sentAt           DateTime?
+  viewedAt         DateTime?
+  signedAt         DateTime?
+  declinedAt       DateTime?
+  /// Stub provider reference (e.g. stub-esign-…)
+  providerRef      String?
+  signatureMetaJson String?
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  practice     Practice     @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  quote        Quote?       @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, status])
+  @@index([practiceId])
 }
 
 model PracticeChange {
@@ -869,6 +915,7 @@ model Quote {
   partner      AgencyPartner? @relation(fields: [partnerId], references: [id])
   lead         Lead?          @relation(fields: [leadId], references: [id])
   lines        QuoteLine[]
+  contracts    PracticeContract[]
 
   @@unique([organizationId, number])
   @@index([organizationId, pipelineStage])

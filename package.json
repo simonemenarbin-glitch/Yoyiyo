@@ -14,7 +14,8 @@
     "test:inbox": "npx tsx scripts/test_inbox_sandbox.ts",
     "test:social": "npx tsx scripts/test_social_scheduler.ts",
     "test:growth": "npx tsx scripts/test_growth_hub.ts",
-    "test:ai": "npx tsx scripts/test_ai_commerciale.ts"
+    "test:ai": "npx tsx scripts/test_ai_commerciale.ts",
+    "test:contract": "npx tsx scripts/test_contract_esign.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -45,8 +45,8 @@ export async function createInvoice(formData: FormData) {
   const partnerId = String(formData.get("partnerId") || "") || null;
 
   let counterpartyName = String(formData.get("counterpartyName") || "").trim();
-  let counterpartyVat = String(formData.get("counterpartyVat") || "").trim() || null;
-  let counterpartyEmail = String(formData.get("counterpartyEmail") || "").trim() || null;
+  const counterpartyVat = String(formData.get("counterpartyVat") || "").trim() || null;
+  const counterpartyEmail = String(formData.get("counterpartyEmail") || "").trim() || null;
 
   let lines = parseLines(formData);
   let practiceRef: string | null = null;

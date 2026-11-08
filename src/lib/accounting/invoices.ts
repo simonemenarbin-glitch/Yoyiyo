@@ -14,7 +14,12 @@ export function round2(n: number) {
 /** IVA su imponibile standard. */
 export function calcStandardVat(subtotal: number, vatRate: number) {
   const vatAmount = round2((subtotal * vatRate) / 100);
-  return { subtotal: round2(subtotal), vatAmount, total: round2(subtotal + vatAmount) };
+  return {
+    subtotal: round2(subtotal),
+    vatRate,
+    vatAmount,
+    total: round2(subtotal + vatAmount),
+  };
 }
 
 /**

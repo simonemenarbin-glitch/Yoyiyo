@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     "Piattaforma SaaS multi-tenant: vendita multi-canale, catalogo, pratiche, CRM e reporting.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="it" className={`${display.variable} ${sans.variable} h-full`}>
       <body className="min-h-full antialiased [font-family:var(--font-sans-ui),system-ui,sans-serif]">

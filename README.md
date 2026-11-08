@@ -30,13 +30,19 @@ Piattaforma SaaS cloud stile MedusaERP per agenzie di viaggio e tour operator.
 ## Avvio locale
 
 ```bash
-cd rotta-erp
 npm install
-npx prisma migrate dev
+npx prisma migrate deploy
 npm run db:seed
+npm run test:landing
 npm run dev
 ```
 
 Apri [http://localhost:3000](http://localhost:3000)
 
 Demo: `demo@rotta.erp` / `rotta-demo`
+
+### Landing builder
+
+- Hub: `/app/landing` — template LeadConnector-style per brand
+- Editor: `/app/marchi/[id]/siti/[siteId]` — testi + anteprima + pubblica
+- Pubblico: `/s/yoyiyo/cina-classic`, `/s/yoyiyo/partner`, `/s/cina-in-gruppo/home`

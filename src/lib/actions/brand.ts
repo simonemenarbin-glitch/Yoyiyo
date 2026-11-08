@@ -10,7 +10,8 @@ import type {
 } from "@prisma/client";
 import { getCurrentUser, primaryMembership } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { defaultLandingBlocks } from "@/lib/brand/metrics";
+import { defaultLandingBlocks, parseSiteBlocks } from "@/lib/brand/metrics";
+import { applyLandingTemplate } from "@/lib/brand/templates";
 
 function slugify(input: string) {
   return input
@@ -120,8 +121,12 @@ export async function createBrandSite(formData: FormData) {
   });
   if (!brand) redirect("/app/marchi");
 
-  const name = String(formData.get("name") || "Landing").trim();
-  const slug = slugify(String(formData.get("slug") || name)) || "landing";
+  const templateId = String(formData.get("templateId") || "") || null;
+  const applied = templateId ? applyLandingTemplate(templateId, brand.name) : null;
+
+  const name = String(formData.get("name") || applied?.name || "Landing").trim();
+  const slug =
+    slugify(String(formData.get("slug") || applied?.suggestedSlug || name)) || "landing";
   const campaignId = String(formData.get("campaignId") || "") || null;
 
   const site = await prisma.brandSite.create({
@@ -131,16 +136,96 @@ export async function createBrandSite(formData: FormData) {
       campaignId,
       name,
       slug,
-      pageType: (String(formData.get("pageType") || "LANDING") as SitePageType) || "LANDING",
+      pageType:
+        (String(formData.get("pageType") || applied?.pageType || "LANDING") as SitePageType) ||
+        "LANDING",
       status: "DRAFT",
       title: String(formData.get("title") || name),
       subtitle: String(formData.get("subtitle") || brand.tagline || "") || null,
-      ctaLabel: String(formData.get("ctaLabel") || "Richiedi preventivo"),
-      blocksJson: JSON.stringify(defaultLandingBlocks(brand.name)),
+      ctaLabel: String(formData.get("ctaLabel") || applied?.ctaLabel || "Richiedi preventivo"),
+      blocksJson: JSON.stringify(applied?.blocks || defaultLandingBlocks(brand.name)),
     },
   });
 
   redirect(`/app/marchi/${brandId}/siti/${site.id}`);
+}
+
+export async function applyTemplateToBrandSite(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const membership = primaryMembership(user)!;
+  const orgId = membership.organizationId;
+  const brandId = String(formData.get("brandId") || "");
+  const id = String(formData.get("id") || "");
+  const templateId = String(formData.get("templateId") || "");
+
+  const brand = await prisma.brand.findFirst({
+    where: { id: brandId, organizationId: orgId },
+  });
+  if (!brand) redirect("/app/marchi");
+
+  const applied = applyLandingTemplate(templateId, brand.name);
+  if (!applied) redirect(`/app/marchi/${brandId}/siti/${id}?err=template`);
+
+  await prisma.brandSite.updateMany({
+    where: { id, organizationId: orgId },
+    data: {
+      blocksJson: JSON.stringify(applied.blocks),
+      pageType: applied.pageType,
+      ctaLabel: applied.ctaLabel,
+      status: "DRAFT",
+      publishedAt: null,
+    },
+  });
+  redirect(`/app/marchi/${brandId}/siti/${id}?saved=1`);
+}
+
+export async function cloneBrandSite(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const membership = primaryMembership(user)!;
+  const orgId = membership.organizationId;
+  const brandId = String(formData.get("brandId") || "");
+  const id = String(formData.get("id") || "");
+
+  const source = await prisma.brandSite.findFirst({
+    where: { id, brandId, organizationId: orgId },
+  });
+  if (!source) redirect(`/app/marchi/${brandId}/siti`);
+
+  const clone = await prisma.brandSite.create({
+    data: {
+      organizationId: orgId,
+      brandId,
+      campaignId: source.campaignId,
+      name: `${source.name} (copia)`,
+      slug: `${source.slug}-copia-${Date.now().toString(36).slice(-4)}`,
+      pageType: source.pageType,
+      status: "DRAFT",
+      title: source.title,
+      subtitle: source.subtitle,
+      ctaLabel: source.ctaLabel,
+      ctaHref: source.ctaHref,
+      heroImageUrl: source.heroImageUrl,
+      blocksJson: source.blocksJson,
+      customCss: source.customCss,
+    },
+  });
+  redirect(`/app/marchi/${brandId}/siti/${clone.id}`);
+}
+
+export async function unpublishBrandSite(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const membership = primaryMembership(user)!;
+  const brandId = String(formData.get("brandId") || "");
+  const id = String(formData.get("id") || "");
+
+  await prisma.brandSite.updateMany({
+    where: { id, organizationId: membership.organizationId },
+    data: { status: "DRAFT", publishedAt: null },
+  });
+  redirect(`/app/marchi/${brandId}/siti/${id}?saved=1`);
 }
 
 function blocksFromSimpleForm(formData: FormData, brandName: string) {
@@ -169,6 +254,23 @@ function blocksFromSimpleForm(formData: FormData, brandName: string) {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const faq = [1, 2]
+    .map((n) => ({
+      q: String(formData.get(`faq${n}Q`) || "").trim(),
+      a: String(formData.get(`faq${n}A`) || "").trim(),
+    }))
+    .filter((f) => f.q || f.a);
+
+  const galleryCaptions = String(formData.get("galleryCaptions") || "")
+    .split(/\n|;/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const ctaTitle = String(formData.get("ctaTitle") || "").trim();
+  const ctaSubtitle = String(formData.get("ctaSubtitle") || "").trim();
+  const textTitle = String(formData.get("textTitle") || "").trim();
+  const textBody = String(formData.get("textBody") || "").trim();
+
   const blocks = [
     {
       type: "hero" as const,
@@ -176,15 +278,30 @@ function blocksFromSimpleForm(formData: FormData, brandName: string) {
       subtitle: heroSubtitle || undefined,
       ctaLabel: ctaLabel || undefined,
     },
-    ...(features.length
-      ? [{ type: "features" as const, items: features }]
-      : []),
+    ...(features.length ? [{ type: "features" as const, items: features }] : []),
     ...(days.length ? [{ type: "itinerary" as const, days }] : []),
+    ...(galleryCaptions.length
+      ? [{ type: "gallery" as const, items: galleryCaptions.map((caption) => ({ caption })) }]
+      : []),
+    ...(textBody
+      ? [{ type: "text" as const, title: textTitle || undefined, body: textBody }]
+      : []),
+    ...(ctaTitle
+      ? [
+          {
+            type: "cta" as const,
+            title: ctaTitle,
+            subtitle: ctaSubtitle || undefined,
+            ctaLabel: ctaLabel || undefined,
+          },
+        ]
+      : []),
     {
       type: "form" as const,
       title: formTitle,
       fields: ["nome", "email", "pax", "periodo", "messaggio"],
     },
+    ...(faq.length ? [{ type: "faq" as const, items: faq }] : []),
     ...(trustItems.length ? [{ type: "trust" as const, items: trustItems }] : []),
   ];
 
@@ -209,7 +326,8 @@ export async function updateBrandSite(formData: FormData) {
   let blocksJson: string | null = null;
   if (editorMode === "json") {
     const raw = String(formData.get("blocksJson") || "").trim();
-    blocksJson = raw || null;
+    // Normalize via parse so invalid JSON falls back safely
+    blocksJson = JSON.stringify(parseSiteBlocks(raw, brand.name));
   } else {
     blocksJson = blocksFromSimpleForm(formData, brand.name);
   }

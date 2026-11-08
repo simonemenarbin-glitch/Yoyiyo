@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { StatusPill } from "@/components/StatusPill";
 import { createBrandSite } from "@/lib/actions/brand";
 import { brandPublicPath } from "@/lib/brand/metrics";
+import { LANDING_TEMPLATES } from "@/lib/brand/templates";
 import {
   sitePageStatusLabel,
   sitePageTypeLabel,
@@ -50,9 +51,14 @@ export default async function BrandSitesPage({
         title="Siti & landing"
         description="Crea una pagina in pochi campi, pubblicala e i form diventano lead sul brand."
         actions={
-          <Link href={`/app/marchi/${brand.id}/campagne`} className={btnSecondary}>
-            Campagne
-          </Link>
+          <>
+            <Link href="/app/landing" className={btnSecondary}>
+              Hub landing
+            </Link>
+            <Link href={`/app/marchi/${brand.id}/campagne`} className={btnSecondary}>
+              Campagne
+            </Link>
+          </>
         }
       />
 
@@ -97,13 +103,23 @@ export default async function BrandSitesPage({
       >
         <form action={createBrandSite} className="grid gap-3 sm:grid-cols-2">
           <input type="hidden" name="brandId" value={brand.id} />
+          <label className="block text-sm sm:col-span-2">
+            <span className="mb-1.5 block font-medium text-slate-700">Template</span>
+            <select name="templateId" defaultValue="fit-cina" className={fieldClass}>
+              {LANDING_TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} — {t.description}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="block text-sm">
             <span className="mb-1.5 block font-medium text-slate-700">Nome interno</span>
-            <input name="name" required placeholder="es. Landing Cina Classic" className={fieldClass} />
+            <input name="name" placeholder="es. Landing Cina Classic" className={fieldClass} />
           </label>
           <label className="block text-sm">
             <span className="mb-1.5 block font-medium text-slate-700">Indirizzo pagina</span>
-            <input name="slug" placeholder="cina-classic" className={fieldClass} />
+            <input name="slug" placeholder="auto dal template" className={fieldClass} />
             <span className="mt-1 block text-xs text-slate-500">
               Diventa /s/{brand.slug}/…
             </span>

@@ -589,39 +589,11 @@ async function main() {
     },
   });
 
-  const landingBlocks = [
-    {
-      type: "hero",
-      title: "Viaggia in Cina con Yoyiyo",
-      subtitle: "Ipotesi di land su misura — non un programma chiuso.",
-      ctaLabel: "Richiedi preventivo",
-    },
-    {
-      type: "features",
-      items: [
-        { title: "Listino proprio + API", text: "Quote chiuse, hotel e servizi aggiornabili." },
-        { title: "Assistenza IT", text: "Ufficio booking italiano e backoffice in Cina." },
-        { title: "WeChat 24h", text: "Assistenza sugli imprevisti del viaggio organizzato." },
-      ],
-    },
-    {
-      type: "itinerary",
-      days: [
-        { title: "Pechino", text: "Città Proibita, Muraglia, guida in italiano." },
-        { title: "Xi’an", text: "Esercito di terracotta, guida in italiano." },
-        { title: "Shanghai", text: "Bund e quartieri contemporanei con accompagnatore IT." },
-      ],
-    },
-    {
-      type: "form",
-      title: "Raccontaci cosa cercate",
-      fields: ["nome", "email", "pax", "periodo", "messaggio"],
-    },
-    {
-      type: "trust",
-      items: ["Validità preventivo 7 giorni", "Ipotesi senza budget, ricalibrabile", "Multi-brand Yoyiyo"],
-    },
-  ];
+  // Prefer shared template builders so seed stays aligned with the landing hub.
+  const { applyLandingTemplate } = await import("../src/lib/brand/templates");
+  const fitTpl = applyLandingTemplate("fit-cina", "Yoyiyo")!;
+  const groupTpl = applyLandingTemplate("groupage", "Cina in Gruppo")!;
+  const partnerTpl = applyLandingTemplate("partner-b2b", "Yoyiyo")!;
 
   await prisma.brandSite.create({
     data: {
@@ -634,11 +606,30 @@ async function main() {
       status: "PUBLISHED",
       title: "Cina Classic — ipotesi su misura",
       subtitle: "Pechino, Xi’an, Shanghai. Prima idea di partenza, non un programma chiuso.",
-      ctaLabel: "Richiedi preventivo",
-      blocksJson: JSON.stringify(landingBlocks),
+      ctaLabel: fitTpl.ctaLabel,
+      blocksJson: JSON.stringify(fitTpl.blocks),
       publishedAt: new Date(),
       views: 128,
       formSubmits: 7,
+    },
+  });
+
+  await prisma.brandSite.create({
+    data: {
+      organizationId: org.id,
+      brandId: yoyiyoBrand.id,
+      campaignId: yoyiyoCampaign.id,
+      name: "Partner B2B (template)",
+      slug: "partner",
+      pageType: partnerTpl.pageType,
+      status: "PUBLISHED",
+      title: "Partnership Yoyiyo",
+      subtitle: "Net e promoter per agenzie.",
+      ctaLabel: partnerTpl.ctaLabel,
+      blocksJson: JSON.stringify(partnerTpl.blocks),
+      publishedAt: new Date(),
+      views: 42,
+      formSubmits: 3,
     },
   });
 
@@ -649,23 +640,14 @@ async function main() {
       name: "Home Cina in Gruppo",
       slug: "home",
       pageType: "HOME",
-      status: "DRAFT",
+      status: "PUBLISHED",
       title: "Partenze e groupage Cina",
       subtitle: "Circuiti e gruppi oltre 20 pax con acconto 10% e release 120 giorni.",
-      ctaLabel: "Chiedi una data",
-      blocksJson: JSON.stringify([
-        {
-          type: "hero",
-          title: "Cina in Gruppo",
-          subtitle: "Partenze garantite e groupage con ufficio booking italiano.",
-          ctaLabel: "Chiedi una data",
-        },
-        {
-          type: "form",
-          title: "Richiesta groupage",
-          fields: ["nome", "email", "pax", "periodo", "messaggio"],
-        },
-      ]),
+      ctaLabel: groupTpl.ctaLabel,
+      blocksJson: JSON.stringify(groupTpl.blocks),
+      publishedAt: new Date(),
+      views: 64,
+      formSubmits: 5,
     },
   });
 

@@ -8,10 +8,11 @@ const primary = [
   { href: "/app", label: "Home", match: (p: string) => p === "/app" },
   { href: "/app/crm", label: "Pipeline", match: (p: string) => p.startsWith("/app/crm") && !p.startsWith("/app/crm/canali") },
   { href: "/app/crm/canali", label: "Aggiorna", match: (p: string) => p.startsWith("/app/crm/canali") },
-  { href: "/app/marchi", label: "Marchi", match: (p: string) => p.startsWith("/app/marchi") },
+  { href: "/app/landing", label: "Landing", match: (p: string) => p.startsWith("/app/landing") },
 ];
 
 const more = [
+  { href: "/app/marchi", label: "Marchi" },
   { href: "/app/preventivi", label: "Preventivi" },
   { href: "/app/pratiche", label: "Pratiche" },
   { href: "/app/catalogo", label: "Listino" },
@@ -104,7 +105,9 @@ export function MobileBottomNav() {
                     ? "☰"
                     : item.label === "Aggiorna"
                       ? "↻"
-                      : "◆"}
+                      : item.label === "Landing"
+                        ? "▣"
+                        : "◆"}
               </span>
               {item.label}
             </Link>

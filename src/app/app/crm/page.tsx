@@ -103,13 +103,13 @@ export default async function CrmPipelinePage({
         title={
           selectedCustomer
             ? `Pipeline · ${selectedCustomer.lastName} ${selectedCustomer.firstName}`
-            : "Pipeline lead"
+            : "Pipeline trattative"
         }
-        description="Filtra, apri un lead, invia risposte. Un cliente può avere più pipeline aperte."
+        description="Apri una card per la vista Trattativa 360 (stage, inbox, preventivi, pratica, fatture)."
         actions={
           <>
             <Link href="/app/crm/nuovo" className={btnPrimary}>
-              Nuovo lead
+              Nuova trattativa
             </Link>
             <Link href="/app/crm/intake" className={btnSecondary}>
               Incolla messaggio
@@ -192,7 +192,7 @@ export default async function CrmPipelinePage({
               Reset
             </Link>
           ) : null}
-          <span className="text-sm text-slate-500 sm:ml-auto">{leads.length} lead in vista</span>
+          <span className="text-sm text-slate-500 sm:ml-auto">{leads.length} trattative in vista</span>
         </div>
       </form>
 
@@ -234,7 +234,7 @@ export default async function CrmPipelinePage({
                     </div>
                   ) : (
                     <Link
-                      href={`/app/crm/leads/${bucket.items[0].id}`}
+                      href={`/app/crm/trattative/${bucket.items[0].id}`}
                       className="text-xs text-teal-800 underline"
                     >
                       Apri
@@ -245,7 +245,7 @@ export default async function CrmPipelinePage({
                   {bucket.items.slice(0, 4).map((lead) => (
                     <Link
                       key={lead.id}
-                      href={`/app/crm/leads/${lead.id}`}
+                      href={`/app/crm/trattative/${lead.id}`}
                       className="block truncate text-xs text-slate-600 hover:text-[#0F3D3E]"
                     >
                       · {lead.pipelineName || lead.interest || leadSourceLabel[lead.source]}{" "}
@@ -279,7 +279,7 @@ export default async function CrmPipelinePage({
               {byStage[stage].map((lead) => (
                 <Link
                   key={lead.id}
-                  href={`/app/crm/leads/${lead.id}`}
+                  href={`/app/crm/trattative/${lead.id}`}
                   className="block rounded-xl border border-slate-100 bg-white px-3 py-3 hover:border-teal-800/25 hover:bg-teal-50/50"
                 >
                   <div className="font-medium text-slate-900">

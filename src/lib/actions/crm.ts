@@ -61,7 +61,7 @@ export async function createLead(formData: FormData) {
     },
   });
 
-  redirect(`/app/crm/leads/${lead.id}`);
+  redirect(`/app/crm/trattative/${lead.id}`);
 }
 
 export async function updateLeadStage(formData: FormData) {
@@ -76,12 +76,26 @@ export async function updateLeadStage(formData: FormData) {
   });
   if (!lead) redirect("/app/crm");
 
+  const previous = lead.pipelineStage;
   await prisma.lead.update({
     where: { id: lead.id },
     data: { pipelineStage: stage, lastActivityAt: new Date() },
   });
 
-  redirect(`/app/crm/leads/${lead.id}`);
+  if (previous !== stage) {
+    await prisma.auditLog.create({
+      data: {
+        organizationId: membership.organizationId,
+        userId: user.id,
+        action: "LEAD_STAGE_CHANGE",
+        entityType: "Lead",
+        entityId: lead.id,
+        metaJson: JSON.stringify({ from: previous, to: stage }),
+      },
+    });
+  }
+
+  redirect(`/app/crm/trattative/${lead.id}`);
 }
 
 export async function createQuoteFromLead(formData: FormData) {

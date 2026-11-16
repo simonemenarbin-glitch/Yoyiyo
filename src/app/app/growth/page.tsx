@@ -398,7 +398,7 @@ export default async function GrowthHubPage({
               <ul className="mt-2 max-h-80 space-y-1 overflow-auto text-sm">
                 {focusMembers.slice(0, 40).map((m) => (
                   <li key={m.leadId} className="flex justify-between gap-2 border-b border-white/60 py-1">
-                    <Link href={`/app/crm/leads/${m.leadId}`} className="font-medium text-[#0F3D3E]">
+                    <Link href={`/app/crm/trattative/${m.leadId}`} className="font-medium text-[#0F3D3E]">
                       {m.name}
                     </Link>
                     <span className="text-xs text-slate-500">

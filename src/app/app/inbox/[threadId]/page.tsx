@@ -74,8 +74,8 @@ export default async function InboxThreadPage({
         actions={
           <>
             {thread.lead ? (
-              <Link href={`/app/crm/leads/${thread.lead.id}`} className={btnSecondary}>
-                Apri lead
+              <Link href={`/app/crm/trattative/${thread.lead.id}`} className={btnSecondary}>
+                Apri trattativa
               </Link>
             ) : null}
             {thread.permalink ? (
@@ -246,10 +246,10 @@ export default async function InboxThreadPage({
                 <p className="mt-2 text-sm text-slate-500">{thread.lead.interest}</p>
               ) : null}
               <Link
-                href={`/app/crm/leads/${thread.lead.id}`}
+                href={`/app/crm/trattative/${thread.lead.id}`}
                 className="mt-3 inline-block text-sm font-semibold text-[#B33A2B]"
               >
-                Apri in pipeline →
+                Apri trattativa →
               </Link>
             </SectionCard>
           ) : null}

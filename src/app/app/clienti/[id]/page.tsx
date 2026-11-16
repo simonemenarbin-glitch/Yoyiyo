@@ -68,7 +68,7 @@ async function openNewPipeline(formData: FormData) {
     },
   });
 
-  redirect(`/app/crm/leads/${lead.id}`);
+  redirect(`/app/crm/trattative/${lead.id}`);
 }
 
 export default async function CustomerDetailPage({
@@ -153,7 +153,7 @@ export default async function CustomerDetailPage({
             {openLeads.map((lead) => (
               <Link
                 key={lead.id}
-                href={`/app/crm/leads/${lead.id}`}
+                href={`/app/crm/trattative/${lead.id}`}
                 className="rounded-xl border border-slate-100 px-4 py-3 hover:border-teal-800/25 hover:bg-teal-50/40"
               >
                 <div className="font-medium text-[#0F3D3E]">
@@ -202,7 +202,7 @@ export default async function CustomerDetailPage({
             {closedLeads.map((lead) => (
               <Link
                 key={lead.id}
-                href={`/app/crm/leads/${lead.id}`}
+                href={`/app/crm/trattative/${lead.id}`}
                 className="flex items-center justify-between rounded-xl border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50"
               >
                 <span>{lead.pipelineName || lead.interest || lead.id.slice(0, 8)}</span>

@@ -16,7 +16,8 @@
     "test:growth": "npx tsx scripts/test_growth_hub.ts",
     "test:ai": "npx tsx scripts/test_ai_commerciale.ts",
     "test:contract": "npx tsx scripts/test_contract_esign.ts",
-    "test:arap": "npx tsx scripts/test_accounting_ar_ap.ts"
+    "test:arap": "npx tsx scripts/test_accounting_ar_ap.ts",
+    "test:trattativa": "npx tsx scripts/test_trattativa_360.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

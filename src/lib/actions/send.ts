@@ -71,20 +71,20 @@ export async function sendLeadReply(formData: FormData) {
   if (!lead) redirect("/app/crm");
 
   if (!body) {
-    redirect(`/app/crm/leads/${lead.id}?send=empty`);
+    redirect(`/app/crm/trattative/${lead.id}?send=empty`);
   }
   if (!confirm) {
-    redirect(`/app/crm/leads/${lead.id}?send=need_confirm`);
+    redirect(`/app/crm/trattative/${lead.id}?send=need_confirm`);
   }
 
   const to = toInput || pickReplyAddress(lead);
   if (!to) {
-    redirect(`/app/crm/leads/${lead.id}?send=no_address`);
+    redirect(`/app/crm/trattative/${lead.id}?send=no_address`);
   }
 
   const connection = await resolveSendConnection(orgId, lead.source, connectionId);
   if (!connection && !simulate) {
-    redirect(`/app/crm/leads/${lead.id}?send=no_channel`);
+    redirect(`/app/crm/trattative/${lead.id}?send=no_channel`);
   }
 
   const subject = subjectInput || defaultReplySubject(lead, lead.source);
@@ -136,7 +136,7 @@ export async function sendLeadReply(formData: FormData) {
         metaJson: JSON.stringify({ messageId: msg.id, error: result.error }),
       },
     });
-    redirect(`/app/crm/leads/${lead.id}?send=fail`);
+    redirect(`/app/crm/trattative/${lead.id}?send=fail`);
   }
 
   await prisma.conversationMessage.update({
@@ -177,5 +177,5 @@ export async function sendLeadReply(formData: FormData) {
     },
   });
 
-  redirect(`/app/crm/leads/${lead.id}?send=ok${result.simulated ? "&sim=1" : ""}`);
+  redirect(`/app/crm/trattative/${lead.id}?send=ok${result.simulated ? "&sim=1" : ""}`);
 }

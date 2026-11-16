@@ -39,7 +39,7 @@ export async function ingestSourceMessage(formData: FormData) {
   });
 
   if (result.quoteId) redirect(`/app/preventivi/${result.quoteId}`);
-  redirect(`/app/crm/leads/${result.leadId}`);
+  redirect(`/app/crm/trattative/${result.leadId}`);
 }
 
 export async function generateBaseQuoteFromLead(formData: FormData) {
@@ -65,7 +65,7 @@ export async function reprocessLeadIntake(formData: FormData) {
   if (!lead) redirect("/app/crm");
 
   const raw = rawOverride || lead.rawSourceText || "";
-  if (!raw) redirect(`/app/crm/leads/${lead.id}`);
+  if (!raw) redirect(`/app/crm/trattative/${lead.id}`);
 
   const parsed = parseLeadSource(raw);
   const decision = evaluateIntake(parsed, {
@@ -104,7 +104,7 @@ export async function reprocessLeadIntake(formData: FormData) {
     },
   });
 
-  redirect(`/app/crm/leads/${lead.id}`);
+  redirect(`/app/crm/trattative/${lead.id}`);
 }
 
 export async function saveDraftReply(formData: FormData) {
@@ -119,7 +119,7 @@ export async function saveDraftReply(formData: FormData) {
     data: { draftReply, lastActivityAt: new Date() },
   });
 
-  redirect(`/app/crm/leads/${leadId}`);
+  redirect(`/app/crm/trattative/${leadId}`);
 }
 
 export async function refineDraftReplyAi(formData: FormData) {
@@ -156,5 +156,5 @@ export async function refineDraftReplyAi(formData: FormData) {
     },
   });
 
-  redirect(`/app/crm/leads/${lead.id}`);
+  redirect(`/app/crm/trattative/${lead.id}`);
 }

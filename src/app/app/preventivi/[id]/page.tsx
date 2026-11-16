@@ -144,7 +144,7 @@ export default async function QuoteDetailPage({
           </div>
           {quote.lead ? (
             <Link
-              href={`/app/crm/leads/${quote.lead.id}`}
+              href={`/app/crm/trattative/${quote.lead.id}`}
               className="mt-1 inline-block text-sm text-teal-800 underline"
             >
               Lead: {quote.lead.lastName} {quote.lead.firstName}

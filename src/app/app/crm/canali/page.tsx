@@ -286,8 +286,8 @@ export default async function ChannelsPage({
                 </div>
                 <div className="flex items-center gap-2">
                   {m.leadId ? (
-                    <Link href={`/app/crm/leads/${m.leadId}`} className="text-xs underline">
-                      Apri lead
+                    <Link href={`/app/crm/trattative/${m.leadId}`} className="text-xs underline">
+                      Apri trattativa
                     </Link>
                   ) : null}
                   {m.quoteId ? (

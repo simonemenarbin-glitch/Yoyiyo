@@ -787,8 +787,64 @@ async function main() {
     data: { leadsCount: 1, revenueAttributed: 0 },
   });
 
+  // Stage history for vista Trattativa 360 (Laura Bianchi / Cina Classic)
+  const stageTrail: Array<{ from: string; to: string; daysAgo: number }> = [
+    { from: "NEW", to: "CONTACTED", daysAgo: 12 },
+    { from: "CONTACTED", to: "QUALIFIED", daysAgo: 9 },
+    { from: "QUALIFIED", to: "QUOTING", daysAgo: 5 },
+  ];
+  for (const step of stageTrail) {
+    await prisma.auditLog.create({
+      data: {
+        organizationId: org.id,
+        userId: user.id,
+        action: "LEAD_STAGE_CHANGE",
+        entityType: "Lead",
+        entityId: quotingLead.id,
+        metaJson: JSON.stringify({ from: step.from, to: step.to }),
+        createdAt: new Date(Date.now() - step.daysAgo * 86400_000),
+      },
+    });
+  }
+
   const { syncSandboxInbox } = await import("../src/lib/inbox/sandbox-sync");
   const inboxSync = await syncSandboxInbox(prisma, org.id);
+
+  // Thread inbox collegato alla trattativa demo (per 360 inbox + unread)
+  const bianchiThread = await prisma.inboxThread.create({
+    data: {
+      organizationId: org.id,
+      leadId: quotingLead.id,
+      brandId: brand.id,
+      source: "EMAIL",
+      kind: "DM",
+      status: "OPEN",
+      externalThreadId: `seed-trattativa-${quotingLead.id}`,
+      contactName: `${customer.firstName} ${customer.lastName}`,
+      contactHandle: customer.email,
+      subject: "Re: Preventivo Cina Classic 12gg",
+      lastBody: "Grazie, sto valutando il preventivo con il cliente finale.",
+      lastAt: new Date(Date.now() - 2 * 3600_000),
+      unreadCount: 1,
+    },
+  });
+  await prisma.conversationMessage.create({
+    data: {
+      organizationId: org.id,
+      leadId: quotingLead.id,
+      threadId: bianchiThread.id,
+      direction: "IN",
+      source: "EMAIL",
+      kind: "DM",
+      status: "LOGGED",
+      unread: true,
+      fromAddress: customer.email,
+      toAddress: "booking@yoyiyo.it",
+      subject: "Re: Preventivo Cina Classic 12gg",
+      body: "Grazie, sto valutando il preventivo con il cliente finale. Vi aggiorno entro venerdì.",
+      sentAt: new Date(Date.now() - 2 * 3600_000),
+    },
+  });
 
   const inTwoHours = new Date(Date.now() + 2 * 3600_000);
   const tomorrow = new Date(Date.now() + 26 * 3600_000);
